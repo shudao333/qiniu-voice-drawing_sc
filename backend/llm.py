@@ -47,13 +47,14 @@ def parse_text_to_commands(text: str) -> str:
     """调用七牛云大模型解析文本为指令 JSON 字符串"""
     client = get_openai_client()
     response = client.chat.completions.create(
-        model="deepseek/deepseek-v3", # 切换为 v3 模型以关闭深度思考，降低延迟
+        model="deepseek/deepseek-v4-pro", # 换回 v4-pro
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": text}
         ],
         temperature=0.1,  # 使用低温度保证输出格式的稳定性
-        response_format={"type": "json_object"}
+        response_format={"type": "json_object"},
+        extra_body={"thinking": {"type": "disabled"}} # 根据官方文档精准关闭深度思考
     )
     
     content = response.choices[0].message.content
