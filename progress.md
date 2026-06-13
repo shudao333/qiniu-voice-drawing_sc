@@ -33,6 +33,11 @@
   - 创建 `backend/__init__.py` 解决 pytest 模块导入路径问题
   - 在 `frontend/js/parser.js` 实现基于正则表达式的 `LocalParser`
   - 进行了 Code Review 边界自审，确认遇到无法解析的文本时会安全打印日志并返回 null
+  - 测试通过，执行 git commit 和 push (PR5)
+  - 切换分支并更新代码 (main -> feat/executor) (PR6)
+  - 使用 code-simplifier 原则在 `executor.js` 中重构执行链路，提供清晰的 `executeCommands` 及针对各动作（draw/modify/delete/move）的分发函数
+  - 修改 `app.js` 打通全局链路：语音转文字 -> LocalParser 解析 -> Executor 画布渲染
+  - 处理了 draw 操作默认落在画布中心并带有轻微随机偏移的逻辑
 - Files created/modified:
   - .gitignore (modified)
   - README.md (modified)

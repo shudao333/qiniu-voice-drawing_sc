@@ -18,10 +18,10 @@ Phase 1
 ### Phase 2: 核心链路闭环 (Day 1 晚 - Day 2 上午)
 - [x] PR4: `feat/command-schema` - 指令数据结构(前后端契约)
 - **Status:** complete
-- [ ] PR5: `feat/local-parser` - 本地规则解析器(画圆/方/线 + 颜色)
-- **Status:** in_progress
+- [x] PR5: `feat/local-parser` - 本地规则解析器(画圆/方/线 + 颜色)
+- **Status:** complete
 - [ ] PR6: `feat/executor` - 指令执行引擎(draw 落到画布)
-- **Status:** pending
+- **Status:** in_progress
 
 ### Phase 3: 大模型接入与复杂交互 (Day 2 下午 - 晚)
 - [ ] PR7: `feat/llm-parse` - 后端接七牛云 LLM,自然语言→指令序列
