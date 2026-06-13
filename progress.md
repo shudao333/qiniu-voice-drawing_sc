@@ -19,6 +19,10 @@
   - 编写前端 `speech.js` (Web Speech API 封装，带完善 console.log 调试)
   - 更新 `app.js` 加入详细的麦克风状态提示机制（如未授权、收音中）
   - 更新 `index.html` 与 `style.css` 完善界面交互
+  - 测试通过，执行 git commit 和 push (PR2)
+  - 切换分支并更新代码 (main -> feat/canvas-base) (PR3)
+  - 基于 ui-ux-pro-max 重构了 `index.html` 与 `style.css` 布局，左侧为语音侧边栏，右侧为全屏画布
+  - 引入 Konva.js CDN 并编写 `executor.js`，向 Console 提供全局 `drawShape` API
 - Files created/modified:
   - .gitignore (modified)
   - README.md (modified)
@@ -30,6 +34,7 @@
   - frontend/css/style.css (modified)
   - frontend/js/speech.js (modified)
   - frontend/js/app.js (modified)
+  - frontend/js/executor.js (modified)
 
 ## Test Results
 | Test | Input | Expected | Actual | Status |

@@ -1,52 +1,137 @@
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
-    background-color: #f5f5f5;
+/* 基于 UI/UX Pro Max 推荐：Inter 字体，#F8FAFC 背景，#3B82F6 主色 */
+:root {
+    --bg-main: #F8FAFC;
+    --bg-sidebar: #FFFFFF;
+    --color-primary: #3B82F6;
+    --color-primary-hover: #2563EB;
+    --color-text: #1E293B;
+    --color-text-light: #64748B;
+    --border-color: #E2E8F0;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-main);
+    color: var(--color-text);
+    overflow: hidden; /* 防止页面整体滚动，专注画布 */
+}
+
+.layout-container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+.sidebar {
+    width: 320px;
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border-color);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    box-shadow: var(--shadow-sm);
+    z-index: 10;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--color-primary);
+}
+
+.header p {
+    margin: 4px 0 0;
+    color: var(--color-text-light);
+    font-size: 14px;
 }
 
 .speech-controls {
     text-align: center;
-    margin-bottom: 20px;
-    padding: 20px;
-    background: #eef2f5;
-    border-radius: 8px;
+    padding: 24px 16px;
+    background: var(--bg-main);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
 }
 
 button#mic-btn {
-    padding: 10px 20px;
+    width: 100%;
+    padding: 12px 20px;
     font-size: 16px;
+    font-weight: 500;
     cursor: pointer;
     border: none;
-    border-radius: 4px;
-    background: #007bff;
+    border-radius: 8px;
+    background: var(--color-primary);
     color: white;
-    transition: background 0.3s;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
 }
 
-button#mic-btn:hover {
-    background: #0056b3;
+button#mic-btn:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
 }
 
 button#mic-btn:disabled {
-    background: #ccc;
+    background: #CBD5E1;
     cursor: not-allowed;
+    transform: none;
+}
+
+#status-text {
+    margin: 12px 0 0;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.result-container h3, .help-panel h3 {
+    margin: 0 0 12px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-light);
 }
 
 .box {
-    min-height: 50px;
-    padding: 15px;
-    border: 1px dashed #ccc;
-    background: #fafafa;
-    border-radius: 4px;
-    font-size: 18px;
+    min-height: 80px;
+    padding: 16px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-main);
+    border-radius: 8px;
+    font-size: 15px;
+    line-height: 1.5;
+    word-break: break-all;
+}
+
+.help-panel ul {
+    margin: 0;
+    padding-left: 20px;
+    color: var(--color-text-light);
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.canvas-wrapper {
+    flex: 1;
+    position: relative;
+    background-color: #FFFFFF;
+    background-image: radial-gradient(var(--border-color) 1px, transparent 1px);
+    background-size: 20px 20px; /* 弱化的网格背景，提升设计感和尺寸感知 */
+}
+
+#canvas-container {
+    width: 100%;
+    height: 100%;
 }
