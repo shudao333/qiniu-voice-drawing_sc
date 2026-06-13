@@ -76,6 +76,14 @@ class DrawingExecutor {
             case window.ParserConfig.ACTIONS.UNDO:
                 console.log("[DrawingExecutor] 撤销功能即将实现");
                 break;
+            case window.ParserConfig.ACTIONS.CLARIFY:
+                console.log(`[DrawingExecutor] 收到澄清请求 (Clarify)，停止执行绘制操作`);
+                const statusText = document.getElementById('status-text');
+                if (statusText) {
+                    statusText.textContent = "🤔 需要补充细节 (请看回复)";
+                    statusText.style.color = "orange";
+                }
+                break;
             default:
                 console.warn(`[DrawingExecutor] 尚未支持的 Action: ${cmd.action}`);
         }

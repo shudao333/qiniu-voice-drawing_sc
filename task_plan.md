@@ -27,7 +27,7 @@ Phase 1
 - [x] PR7: `feat/llm-parse` - 后端接七牛云 LLM,自然语言→指令序列
 - **Status:** complete
 - [ ] PR8: `feat/parser-router` - 本地优先 + LLM 兜底的路由
-- **Status:** pending
+- **Status:** in_progress
 - [ ] PR10: `feat/undo-delete` - 撤销/重做/删除/清空
 - **Status:** in_progress
 

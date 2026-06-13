@@ -45,6 +45,9 @@
   - 在 `backend/main.py` 新增 `/api/parse` 接口，整合了 Pydantic Schema 的强校验和 Markdown 代码块过滤机制，符合 code-reviewer 安全要求
   - 在根目录提供了独立的后端测试脚本 `test_llm.py`
   - 测试通过，执行 git commit 和 push (PR7)
+  - 切换分支并更新代码 (main -> feat/parser-router) (PR8)
+  - 强制调用 `code-reviewer` 审查并实现了健壮的智能路由机制。在 `frontend/js/api.js` 中封装了 Fetch 请求调用后端 LLM。
+  - 修改 `app.js` 统一入口，优先走 `window.parse` (PR5) 本地极速响应。若未命中，自动调用 `api.js` 走大模型解析，并严密控制了 UI "思考中..." 的状态轮转与异步错误捕获。
 - Files created/modified:
   - .gitignore (modified)
   - README.md (modified)

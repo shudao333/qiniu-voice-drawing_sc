@@ -103,6 +103,17 @@ class LocalParser {
         try {
             // 1. 拦截完全无法处理的极短文本或防呆
             if (text.length < 1) return null;
+            
+            // 1.5 限制本地解析的‘贪心拦截’：长难句和相对位置指令强制降级给大模型
+            if (text.length > 15) {
+                console.log("[LocalParser] 文本超过 15 字符，强制降级 LLM");
+                return null;
+            }
+            const complexKeywords = ['然后', '把', '最后', '里面', '旁边', '左边', '右边', '和'];
+            if (complexKeywords.some(keyword => text.includes(keyword))) {
+                console.log("[LocalParser] 包含复杂位置或逻辑词汇，强制降级 LLM");
+                return null;
+            }
 
             // 2. 匹配"清空"
             if (/清空|重置/.test(text)) {
