@@ -15,6 +15,10 @@
   - 编写 `backend/main.py` 提供 `/api/health` 接口并挂载 `frontend`
   - 编写 `backend/requirements.txt` 和 `frontend/index.html` 骨架
   - 执行 git commit 和 push (PR1)
+  - 切换分支并更新代码 (main -> feat/speech-input) (PR2)
+  - 编写前端 `speech.js` (Web Speech API 封装，带完善 console.log 调试)
+  - 更新 `app.js` 加入详细的麦克风状态提示机制（如未授权、收音中）
+  - 更新 `index.html` 与 `style.css` 完善界面交互
 - Files created/modified:
   - .gitignore (modified)
   - README.md (modified)
@@ -23,6 +27,9 @@
   - backend/main.py (modified)
   - backend/requirements.txt (modified)
   - frontend/index.html (modified)
+  - frontend/css/style.css (modified)
+  - frontend/js/speech.js (modified)
+  - frontend/js/app.js (modified)
 
 ## Test Results
 | Test | Input | Expected | Actual | Status |
