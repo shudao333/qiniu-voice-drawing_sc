@@ -11,7 +11,7 @@ Phase 1
 ### Phase 1: 环境与基础架构 (Day 1 上午-下午)
 - [x] PR0: `chore/init` - 仓库脚手架 + .gitignore + README 骨架
 - [x] PR1: `feat/backend-skeleton` - FastAPI 起服务 + 健康检查 + 静态托管
-- [ ] PR2: `feat/speech-input` - 前端麦克风 + Web Speech 实时转文字
+- [x] PR2: `feat/speech-input` - 前端麦克风 + Web Speech 实时转文字
 - [ ] PR3: `feat/canvas-base` - Konva 画布 + 基础图形渲染
 - **Status:** in_progress
 

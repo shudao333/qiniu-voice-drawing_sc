@@ -2,26 +2,46 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>AI 语音绘图工具</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 语音绘图工具 (Voice Draw)</title>
+    <!-- 引入 Konva.js -->
+    <script src="https://unpkg.com/konva@9.3.6/konva.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>AI 语音绘图工具</h1>
-        
-        <div class="speech-controls">
-            <button id="mic-btn">🎤 载入中...</button>
-            <p id="status-text">初始化中...</p>
-        </div>
+    <div class="layout-container">
+        <!-- 左侧/侧边栏：语音控制与结果展示 -->
+        <aside class="sidebar">
+            <div class="header">
+                <h1>Voice Draw</h1>
+                <p>AI 语音控制绘图</p>
+            </div>
+            
+            <div class="speech-controls">
+                <button id="mic-btn">🎤 载入中...</button>
+                <p id="status-text">初始化中...</p>
+            </div>
 
-        <div class="result-container">
-            <h3>识别结果：</h3>
-            <div id="result-box" class="box">等待语音输入...</div>
-        </div>
+            <div class="result-container">
+                <h3>识别结果</h3>
+                <div id="result-box" class="box">等待语音输入...</div>
+            </div>
+            
+            <div class="help-panel">
+                <h3>常用指令测试：</h3>
+                <ul>
+                    <li>画一个红色的圆</li>
+                    <li>画一个蓝色的矩形</li>
+                    <li>清空画布</li>
+                </ul>
+            </div>
+        </aside>
 
-        <div id="app">
-            <!-- 基础交互和绘图容器将在后续添加 -->
-        </div>
+        <!-- 右侧/主视口：画布区域 -->
+        <main class="canvas-wrapper">
+            <div id="canvas-container"></div>
+        </main>
     </div>
     
     <script src="/js/api.js"></script>
