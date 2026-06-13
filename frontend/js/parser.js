@@ -64,3 +64,128 @@ window.ParserConfig = {
     ACTIONS,
     TARGETS
 };
+
+/**
+ * 纯本地规则解析器
+ * 基于关键词和正则表达式，实现低延迟的指令转换。
+ * 无法处理的复杂语句将返回 null，以便由大模型兜底。
+ */
+class LocalParser {
+    constructor() {
+        this.synonyms = {
+            shape: {
+                '圆': 'circle', '圆形': 'circle', '圈': 'circle',
+                '方块': 'rect', '方形': 'rect', '矩形': 'rect', '长方形': 'rect', '正方形': 'rect',
+                '线': 'line', '直线': 'line', '线条': 'line'
+            },
+            color: {
+                '红': '#EF4444', '红色': '#EF4444',
+                '蓝': '#3B82F6', '蓝色': '#3B82F6',
+                '绿': '#10B981', '绿色': '#10B981',
+                '黄': '#F59E0B', '黄色': '#F59E0B',
+                '黑': '#1E293B', '黑色': '#1E293B',
+                '白': '#FFFFFF', '白色': '#FFFFFF',
+                '紫': '#8B5CF6', '紫色': '#8B5CF6'
+            }
+        };
+    }
+
+    /**
+     * 将自然语言转化为结构化指令 (Local 优先)
+     * @param {string} text 
+     * @returns {CommandItem|null}
+     */
+    parse(text) {
+        if (!text || typeof text !== 'string') return null;
+        text = text.trim();
+
+        try {
+            // 1. 拦截完全无法处理的极短文本或防呆
+            if (text.length < 1) return null;
+
+            // 2. 匹配"清空"
+            if (/清空|重置/.test(text)) {
+                return { action: ACTIONS.CLEAR };
+            }
+
+            // 3. 匹配"撤销"
+            if (/撤销|上一步/.test(text)) {
+                return { action: ACTIONS.UNDO };
+            }
+
+            // 4. 匹配画图 "画一个红色的圆" 或 "画一个圈"
+            // 支持模式: (画|来|搞)一个(颜色)的(形状)
+            let drawMatch = text.match(/(画|来|搞|弄)一个?(.*)?(红|蓝|绿|黄|黑|白|紫)色的?(圆|圆形|圈|方块|方形|矩形|长方形|正方形|线|直线)/);
+            if (!drawMatch) {
+                // 如果没有颜色匹配，尝试单纯匹配形状
+                drawMatch = text.match(/(画|来|搞|弄)一个?(圆|圆形|圈|方块|方形|矩形|长方形|正方形|线|直线)/);
+                if (drawMatch) {
+                    const shapeKey = drawMatch[2];
+                    return {
+                        action: ACTIONS.DRAW,
+                        shape: this.synonyms.shape[shapeKey],
+                        props: {}
+                    };
+                }
+            } else {
+                const colorKey = drawMatch[3];
+                const shapeKey = drawMatch[4];
+                return {
+                    action: ACTIONS.DRAW,
+                    shape: this.synonyms.shape[shapeKey],
+                    props: { color: this.synonyms.color[colorKey] }
+                };
+            }
+
+            // 5. 匹配修改颜色 "涂成红色" / "把它变成蓝色"
+            const modifyMatch = text.match(/(涂成|改成|变成|修改成?为?)(红|蓝|绿|黄|黑|白|紫)色?/);
+            if (modifyMatch) {
+                const colorKey = modifyMatch[2];
+                return {
+                    action: ACTIONS.MODIFY,
+                    target: TARGETS.LAST, // 暂时默认操作上一个对象
+                    props: { color: this.synonyms.color[colorKey] }
+                };
+            }
+            
+            // 6. 匹配删除 "把它删了" / "删除"
+            if (/(把它)?(删了?|去掉|清除)/.test(text)) {
+                return {
+                    action: ACTIONS.DELETE,
+                    target: TARGETS.LAST
+                };
+            }
+
+            // 7. 匹配移动 "向右移动一点"
+            const moveMatch = text.match(/向(上|下|左|右)(移动|移)?/);
+            if (moveMatch) {
+                const direction = moveMatch[1];
+                let dx = 0, dy = 0;
+                const step = 50; // 默认移动像素
+                if (direction === '上') dy = -step;
+                if (direction === '下') dy = step;
+                if (direction === '左') dx = -step;
+                if (direction === '右') dx = step;
+
+                return {
+                    action: ACTIONS.MOVE,
+                    target: TARGETS.LAST,
+                    props: { dx, dy }
+                };
+            }
+
+            // 无法进行本地解析，优雅返回 null，留给后续 LLM 兜底处理
+            console.log(`[LocalParser] 无法匹配本地规则，返回 null 降级: "${text}"`);
+            return null;
+
+        } catch (e) {
+            // 异常捕获，确保不阻断后续的大模型调用流程
+            console.error("[LocalParser] 解析异常，安全返回 null:", e);
+            return null;
+        }
+    }
+}
+
+// 暴露到全局供测试与后续组件调用
+window.localParser = new LocalParser();
+window.parse = window.localParser.parse.bind(window.localParser); // 便于控制台直接测试
