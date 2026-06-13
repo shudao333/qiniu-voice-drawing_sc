@@ -23,6 +23,11 @@
   - 切换分支并更新代码 (main -> feat/canvas-base) (PR3)
   - 基于 ui-ux-pro-max 重构了 `index.html` 与 `style.css` 布局，左侧为语音侧边栏，右侧为全屏画布
   - 引入 Konva.js CDN 并编写 `executor.js`，向 Console 提供全局 `drawShape` API
+  - 测试通过，执行 git commit 和 push (PR3)
+  - 切换分支并更新代码 (main -> feat/command-schema) (PR4)
+  - 在 `backend/schemas.py` 使用 Pydantic 定义严格的指令数据结构 (CommandItem, CommandResponse)
+  - 在 `backend/test_schemas.py` 提供对契约校验的 pytest 测试用例
+  - 在 `frontend/js/parser.js` 建立一致的 JSDoc 常量契约
 - Files created/modified:
   - .gitignore (modified)
   - README.md (modified)
@@ -30,11 +35,14 @@
   - frontend/*, backend/* (created)
   - backend/main.py (modified)
   - backend/requirements.txt (modified)
+  - backend/schemas.py (created)
+  - backend/test_schemas.py (created)
   - frontend/index.html (modified)
   - frontend/css/style.css (modified)
   - frontend/js/speech.js (modified)
   - frontend/js/app.js (modified)
   - frontend/js/executor.js (modified)
+  - frontend/js/parser.js (modified)
 
 ## Test Results
 | Test | Input | Expected | Actual | Status |

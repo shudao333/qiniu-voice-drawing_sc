@@ -12,11 +12,12 @@ Phase 1
 - [x] PR0: `chore/init` - 仓库脚手架 + .gitignore + README 骨架
 - [x] PR1: `feat/backend-skeleton` - FastAPI 起服务 + 健康检查 + 静态托管
 - [x] PR2: `feat/speech-input` - 前端麦克风 + Web Speech 实时转文字
-- [ ] PR3: `feat/canvas-base` - Konva 画布 + 基础图形渲染
-- **Status:** in_progress
+- [x] PR3: `feat/canvas-base` - Konva 画布 + 基础图形渲染
+- **Status:** complete
 
 ### Phase 2: 核心链路闭环 (Day 1 晚 - Day 2 上午)
 - [ ] PR4: `feat/command-schema` - 指令数据结构(前后端契约)
+- **Status:** in_progress
 - [ ] PR5: `feat/local-parser` - 本地规则解析器(画圆/方/线 + 颜色)
 - [ ] PR6: `feat/executor` - 指令执行引擎(draw 落到画布)
 - **Status:** pending
