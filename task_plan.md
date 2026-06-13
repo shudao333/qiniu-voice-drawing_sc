@@ -16,9 +16,10 @@ Phase 1
 - **Status:** complete
 
 ### Phase 2: 核心链路闭环 (Day 1 晚 - Day 2 上午)
-- [ ] PR4: `feat/command-schema` - 指令数据结构(前后端契约)
-- **Status:** in_progress
+- [x] PR4: `feat/command-schema` - 指令数据结构(前后端契约)
+- **Status:** complete
 - [ ] PR5: `feat/local-parser` - 本地规则解析器(画圆/方/线 + 颜色)
+- **Status:** in_progress
 - [ ] PR6: `feat/executor` - 指令执行引擎(draw 落到画布)
 - **Status:** pending
 

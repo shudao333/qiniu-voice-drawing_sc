@@ -28,6 +28,11 @@
   - 在 `backend/schemas.py` 使用 Pydantic 定义严格的指令数据结构 (CommandItem, CommandResponse)
   - 在 `backend/test_schemas.py` 提供对契约校验的 pytest 测试用例
   - 在 `frontend/js/parser.js` 建立一致的 JSDoc 常量契约
+  - 测试通过，执行 git commit 和 push (PR4)
+  - 切换分支并更新代码 (main -> feat/local-parser) (PR5)
+  - 创建 `backend/__init__.py` 解决 pytest 模块导入路径问题
+  - 在 `frontend/js/parser.js` 实现基于正则表达式的 `LocalParser`
+  - 进行了 Code Review 边界自审，确认遇到无法解析的文本时会安全打印日志并返回 null
 - Files created/modified:
   - .gitignore (modified)
   - README.md (modified)
@@ -35,6 +40,7 @@
   - frontend/*, backend/* (created)
   - backend/main.py (modified)
   - backend/requirements.txt (modified)
+  - backend/__init__.py (created)
   - backend/schemas.py (created)
   - backend/test_schemas.py (created)
   - frontend/index.html (modified)
