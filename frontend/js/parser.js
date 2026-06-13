@@ -97,7 +97,8 @@ class LocalParser {
      */
     parse(text) {
         if (!text || typeof text !== 'string') return null;
-        text = text.trim();
+        // 去除所有的中英文标点符号以及两端空格
+        text = text.replace(/[。，！？.,!?]/g, '').trim();
 
         try {
             // 1. 拦截完全无法处理的极短文本或防呆
@@ -156,10 +157,10 @@ class LocalParser {
                 };
             }
 
-            // 7. 匹配移动 "向右移动一点"
-            const moveMatch = text.match(/向(上|下|左|右)(移动|移)?/);
+            // 7. 匹配移动 "向右移动一点" 或 "把它移到左边"
+            const moveMatch = text.match(/(向|移到)(上|下|左|右)(边|面|移动|移)?/);
             if (moveMatch) {
-                const direction = moveMatch[1];
+                const direction = moveMatch[2];
                 let dx = 0, dy = 0;
                 const step = 50; // 默认移动像素
                 if (direction === '上') dy = -step;
