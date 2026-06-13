@@ -38,6 +38,13 @@
   - 使用 code-simplifier 原则在 `executor.js` 中重构执行链路，提供清晰的 `executeCommands` 及针对各动作（draw/modify/delete/move）的分发函数
   - 修改 `app.js` 打通全局链路：语音转文字 -> LocalParser 解析 -> Executor 画布渲染
   - 处理了 draw 操作默认落在画布中心并带有轻微随机偏移的逻辑
+  - 测试通过，执行 git commit 和 push (PR6)
+  - 切换分支并更新代码 (main -> feat/llm-parse) (PR7)
+  - 在 `backend/llm.py` 中封装了基于 openai SDK 的七牛云大模型调用（严禁硬编码密钥，从环境变量获取 QINIU_API_KEY），并编写了强力 System Prompt
+  - 根据测试反馈，将模型由 `deepseek-v4-pro` 降级为 `deepseek-v3` 以关闭深度思考模式，大幅降低 API 响应延迟
+  - 在 `backend/main.py` 新增 `/api/parse` 接口，整合了 Pydantic Schema 的强校验和 Markdown 代码块过滤机制，符合 code-reviewer 安全要求
+  - 在根目录提供了独立的后端测试脚本 `test_llm.py`
+  - 测试通过，执行 git commit 和 push (PR7)
 - Files created/modified:
   - .gitignore (modified)
   - README.md (modified)

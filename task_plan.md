@@ -24,11 +24,12 @@ Phase 1
 - **Status:** in_progress
 
 ### Phase 3: 大模型接入与复杂交互 (Day 2 下午 - 晚)
-- [ ] PR7: `feat/llm-parse` - 后端接七牛云 LLM,自然语言→指令序列
+- [x] PR7: `feat/llm-parse` - 后端接七牛云 LLM,自然语言→指令序列
+- **Status:** complete
 - [ ] PR8: `feat/parser-router` - 本地优先 + LLM 兜底的路由
-- [ ] PR9: `feat/modify-move` - 修改属性 / 移动 / 选中图形
-- [ ] PR10: `feat/undo-delete` - 撤销/重做/删除/清空
 - **Status:** pending
+- [ ] PR10: `feat/undo-delete` - 撤销/重做/删除/清空
+- **Status:** in_progress
 
 ### Phase 4: 容错与高阶功能 (Day 3 上午 - 下午)
 - [ ] PR11: `feat/error-tolerance` - 容错:同义词归一 + 澄清式反问
