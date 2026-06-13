@@ -13,7 +13,7 @@ Phase 1
 - [x] PR1: `feat/backend-skeleton` - FastAPI 起服务 + 健康检查 + 静态托管
 - [ ] PR2: `feat/speech-input` - 前端麦克风 + Web Speech 实时转文字
 - [ ] PR3: `feat/canvas-base` - Konva 画布 + 基础图形渲染
-- **Status:** pending
+- **Status:** in_progress
 
 ### Phase 2: 核心链路闭环 (Day 1 晚 - Day 2 上午)
 - [ ] PR4: `feat/command-schema` - 指令数据结构(前后端契约)
