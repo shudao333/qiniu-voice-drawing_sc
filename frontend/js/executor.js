@@ -224,6 +224,10 @@ class DrawingExecutor {
         if (!targetDef || targetDef === 'last') {
             return this.shapes[this.shapes.length - 1];
         }
+        if (targetDef === 'it') {
+            // 智能指代：优先选中的，没有才用最后的
+            return this.selectedShape || this.shapes[this.shapes.length - 1];
+        }
         if (targetDef === 'selected') {
             return this.selectedShape || this.shapes[this.shapes.length - 1];
         }
@@ -236,12 +240,30 @@ class DrawingExecutor {
             const shape = this.shapes[i];
             const className = shape.getClassName().toLowerCase();
             const textDef = targetDef.toLowerCase();
-            if (textDef.includes('圆') && className === 'circle') return shape;
-            if ((textDef.includes('方') || textDef.includes('矩形')) && className === 'rect') return shape;
+
+            // 颜色匹配辅助函数
+            const matchColor = () => {
+                const fill = shape.fill() || shape.stroke();
+                if (!fill) return true; // 无颜色信息时忽略颜色匹配
+                const fillLower = fill.toLowerCase();
+                // 简化匹配：常见颜色关键词
+                if (textDef.includes('红') && (fillLower.includes('f4') || fillLower.includes('e4') || fillLower.includes('ff0'))) return true;
+                if (textDef.includes('蓝') && (fillLower.includes('3b8') || fillLower.includes('82f6') || fillLower.includes('00f'))) return true;
+                if (textDef.includes('绿') && (fillLower.includes('10b') || fillLower.includes('b981') || fillLower.includes('0f0'))) return true;
+                if (textDef.includes('黄') && (fillLower.includes('f59') || fillLower.includes('ffa5') || fillLower.includes('9e0b') || fillLower.includes('ff0'))) return true;
+                if (textDef.includes('黑') && (fillLower.includes('000') || fillLower.includes('1e2'))) return true;
+                if (textDef.includes('白') && fillLower.includes('fff')) return true;
+                if (textDef.includes('紫') && (fillLower.includes('8b5') || fillLower.includes('5cf6'))) return true;
+                return !(/红|蓝|绿|黄|黑|白|紫/.test(textDef)); // 描述无颜色词时忽略
+            };
+
+            if (textDef.includes('圆') && className === 'circle' && matchColor()) return shape;
+            if ((textDef.includes('方') || textDef.includes('矩形')) && className === 'rect' && matchColor()) return shape;
+            if (textDef.includes('椭圆') && className === 'ellipse' && matchColor()) return shape;
+            // 线和文字保持原样
             if (textDef.includes('线') && className === 'line') return shape;
             if (textDef.includes('角') && className === 'line' && shape.points().length === 6) return shape; // triangle
             if (textDef.includes('字') && className === 'text') return shape;
-            if (textDef.includes('椭圆') && className === 'ellipse') return shape;
         }
 
         return this.shapes[this.shapes.length - 1];
