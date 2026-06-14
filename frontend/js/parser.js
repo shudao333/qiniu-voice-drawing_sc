@@ -110,7 +110,8 @@ class LocalParser {
                 console.log("[LocalParser] 文本超过 15 字符，强制降级 LLM");
                 return null;
             }
-            const complexKeywords = ['然后', '把', '最后', '里面', '旁边', '左边', '右边', '和'];
+            // 【强制拦截规则】如果包含复杂的连词或介词，直接交给大模型处理
+            const complexKeywords = ['然后', '最后', '里面', '旁边', '和'];
             if (complexKeywords.some(keyword => text.includes(keyword))) {
                 console.log("[LocalParser] 包含复杂位置或逻辑词汇，强制降级 LLM");
                 return null;
@@ -121,9 +122,12 @@ class LocalParser {
                 return { action: ACTIONS.CLEAR };
             }
 
-            // 3. 匹配"撤销"
+            // 3. 匹配"撤销"和"重做"
             if (/撤销|上一步/.test(text)) {
                 return { action: ACTIONS.UNDO };
+            }
+            if (/重做|下一步|恢复/.test(text)) {
+                return { action: ACTIONS.REDO };
             }
 
             // 4. 匹配画图 "画一个红色的圆" 或 "画一个圈"
@@ -162,11 +166,13 @@ class LocalParser {
                 };
             }
             
-            // 6. 匹配删除 "把它删了" / "删除"
-            if (/(把它)?(删了?|去掉|清除)/.test(text)) {
+            // 6. 匹配删除 "把它删了" / "删除"（仅简单指令，带描述词的交给LLM）
+            const deleteMatch = text.match(/^(把它)?(删除|删了?|去掉|清除)$/);
+            if (deleteMatch) {
+                const hasIt = deleteMatch[1];
                 return {
                     action: ACTIONS.DELETE,
-                    target: TARGETS.LAST
+                    target: hasIt ? TARGETS.IT : TARGETS.LAST
                 };
             }
 

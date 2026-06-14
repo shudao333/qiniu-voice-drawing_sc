@@ -63,6 +63,12 @@
   - 完善 `getTargetShape` 支持按颜色、形状描述遍历选中，以及通过 `target: "selected"` 返回 `this.selectedShape`。
   - 新增 `handleSelect`：按条件找到目标并设置金色描边高亮，将其置为选中图形。
   - 测试通过，执行 git commit 和 push (PR9)
+  - 切换分支并更新代码 (main -> feat/undo-delete) (PR10)
+  - 在 `executor.js` 中实现了基于 `shapes.map(s => s.toJSON())` 的快照机制，构建了最大深度 30 的 `undoStack` 和 `redoStack`。
+  - 在 `executeCommands` 中增加了动作拦截，仅在发生修改类动作（draw/modify/delete/move/clear）前，对画布状态做预先快照。
+  - 实现了 `handleUndo` 和 `handleRedo`：安全弹栈并使用 `Konva.Node.create` 解析 JSON 节点，重新绑定事件。
+  - 更新 `parser.js` 以增加“重做/下一步/恢复”本地拦截，并将其转发为 `ACTIONS.REDO`。
+  - 提交流程完成并已 push 到远程 (PR10)
 - Files created/modified:
   - .gitignore (modified)
   - README.md (modified)

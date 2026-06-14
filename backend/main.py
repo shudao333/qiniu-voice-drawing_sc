@@ -3,6 +3,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import json
+from typing import Optional
 
 from backend.schemas import CommandResponse
 from backend.llm import parse_text_to_commands
@@ -18,6 +19,7 @@ app.add_middleware(
 
 class ParseRequest(BaseModel):
     text: str
+    context: Optional[dict] = None
 
 @app.get("/api/health")
 async def health_check():
@@ -26,7 +28,7 @@ async def health_check():
 @app.post("/api/parse", response_model=CommandResponse)
 async def parse_command(request: ParseRequest):
     try:
-        raw_json_str = parse_text_to_commands(request.text)
+        raw_json_str = parse_text_to_commands(request.text, request.context)
         
         # Code Reviewer 安全性处理：清理大模型可能擅自添加的 Markdown 代码块
         raw_json_str = raw_json_str.strip()

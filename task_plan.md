@@ -29,8 +29,8 @@ Phase 1
 - **Status:** complete
 - [x] PR8: `feat/parser-router` - 本地优先 + LLM 兜底的路由
 - **Status:** complete
-- [ ] PR10: `feat/undo-delete` - 撤销/重做/删除/清空
-- **Status:** in_progress
+- [x] PR10: `feat/undo-delete` - 撤销/重做/删除/清空
+- **Status:** complete
 
 ### Phase 4: 容错与高阶功能 (Day 3 上午 - 下午)
 - [ ] PR11: `feat/error-tolerance` - 容错:同义词归一 + 澄清式反问

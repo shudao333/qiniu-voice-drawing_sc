@@ -9,14 +9,19 @@ class ApiService {
      * @param {string} text 用户的语音文本
      * @returns {Promise<Object>} 后端返回的 CommandResponse 对象
      */
-    static async fetchLLMParse(text) {
+    static async fetchLLMParse(text, context = null) {
         try {
+            const requestBody = { text };
+            if (context) {
+                requestBody.context = context;
+            }
+
             const response = await fetch('/api/parse', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ text })
+                body: JSON.stringify(requestBody)
             });
 
             if (!response.ok) {
