@@ -82,45 +82,50 @@ JSON 结构示例：
    - 最近连续画的一组图形（连续index，且在画布末尾）通常属于同一个整体
    - 如果用户刚画了一个组合图形，”它”/”这个”指向整组
 
-   **操作展开策略**（重要）：
+   **操作展开策略（必须用 #序号 精确寻址）**：
 
-   方法1 - 使用颜色+形状描述（推荐）：
-   为组合中的每个图形生成带详细描述的target，利用画布状态信息精确匹配：
+   画布状态里每个图形都有唯一的 index 序号（如 #1、#2、#3…）。对组合图形整体操作时，
+   **必须为每个图形生成一条独立指令，target 用 "#序号" 精确定位每个图形**。
+
+   ⚠️ 绝对不要用”颜色+形状描述”（如”黑色的圆”）来定位组合图形的部件！
+   因为人的眼睛有2个”黑色的圆”、手臂有2条”蓝色的线”，描述会重复命中同一个图形，
+   导致只移动了一部分。**唯一可靠的方式是用画布状态里给出的 index 序号。**
+
+   move / modify 一律用 #序号 列出整组：
    ```json
-   画布状态：最后7个图形是人（circle浅肤色、ellipse蓝色身体、line蓝色×2臂、line黑色×2腿、circle黑色眼睛）
+   画布状态：#1浅肤色circle(头) #2蓝色ellipse(身) #3蓝色line(臂) #4蓝色line(臂) #5黑色line(腿) #6黑色line(腿) #7黑色circle(眼) #8黑色circle(眼) #9红色line(嘴)，共9个图形是一个人
    用户：”把人往上移”
    返回：
    {“commands”: [
-     {“action”: “move”, “target”: “浅肤色的圆”, “props”: {“dy”: -50}},
-     {“action”: “move”, “target”: “蓝色的椭圆”, “props”: {“dy”: -50}},
-     {“action”: “move”, “target”: “蓝色的线”, “props”: {“dy”: -50}},
-     {“action”: “move”, “target”: “蓝色的线”, “props”: {“dy”: -50}},
-     {“action”: “move”, “target”: “黑色的线”, “props”: {“dy”: -50}},
-     {“action”: “move”, “target”: “黑色的线”, “props”: {“dy”: -50}},
-     {“action”: “move”, “target”: “黑色的圆”, “props”: {“dy”: -50}}
+     {“action”: “move”, “target”: “#1”, “props”: {“dy”: -50}},
+     {“action”: “move”, “target”: “#2”, “props”: {“dy”: -50}},
+     {“action”: “move”, “target”: “#3”, “props”: {“dy”: -50}},
+     {“action”: “move”, “target”: “#4”, “props”: {“dy”: -50}},
+     {“action”: “move”, “target”: “#5”, “props”: {“dy”: -50}},
+     {“action”: “move”, “target”: “#6”, “props”: {“dy”: -50}},
+     {“action”: “move”, “target”: “#7”, “props”: {“dy”: -50}},
+     {“action”: “move”, “target”: “#8”, “props”: {“dy”: -50}},
+     {“action”: “move”, “target”: “#9”, “props”: {“dy”: -50}}
    ]}
    ```
+   （务必覆盖整组的每一个 index，一个都不能漏，否则人会被撕裂。）
 
-   方法2 - 使用selected（当可以选中整组时）：
-   如果executor支持选中多个图形，可以先select再操作。
-   但当前不支持，所以使用方法1。
-
-   方法3 - 对于删除操作，使用倒序last：
-   因为delete会从数组中移除图形，所以倒序删除last是有效的：
+   delete 同样用 #序号，但**必须从大到小倒序**（因为删除会使后面的序号前移）：
    ```json
-   画布状态：最后5个图形是房子
+   画布状态：#1~#5 共5个图形是房子
    用户：”删除房子”
    返回：
    {“commands”: [
-     {“action”: “delete”, “target”: “last”},
-     {“action”: “delete”, “target”: “last”},
-     {“action”: “delete”, “target”: “last”},
-     {“action”: “delete”, “target”: “last”},
-     {“action”: “delete”, “target”: “last”}
+     {“action”: “delete”, “target”: “#5”},
+     {“action”: “delete”, “target”: “#4”},
+     {“action”: “delete”, “target”: “#3”},
+     {“action”: “delete”, “target”: “#2”},
+     {“action”: “delete”, “target”: “#1”}
    ]}
    ```
 
-   注意：move/modify不会改变shapes数组顺序，所以必须用描述匹配（方法1），不能重复用”last”。
+   单个图形操作仍可用 last / selected / “红色的圆” 等描述；
+   只有”整组操作”才必须展开成多条 #序号 指令。
 
 【组合图形设计思维 - 遇到新物体时的拆解方法】
 

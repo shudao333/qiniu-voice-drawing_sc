@@ -313,7 +313,22 @@ class DrawingExecutor {
         if (targetDef === 'all') {
             return [...this.shapes];
         }
-        
+
+        // 精确索引寻址 #N（N 为画布状态里的 1-based 序号）
+        // 这是组合图形整体操作的可靠原语：每个序号唯一，绝不会像颜色/形状描述那样
+        // 在重复部件（两只眼睛、两条手臂）上反复命中同一个图形。
+        if (typeof targetDef === 'string') {
+            const indexMatch = targetDef.match(/^#(\d+)$/);
+            if (indexMatch) {
+                const idx = parseInt(indexMatch[1], 10) - 1;
+                if (idx >= 0 && idx < this.shapes.length) {
+                    return this.shapes[idx];
+                }
+                console.warn(`[DrawingExecutor] 索引 ${targetDef} 越界，忽略该指令`);
+                return null; // 越界宁可跳过，也不误伤其他图形
+            }
+        }
+
         // 字符串描述含颜色/形状
         for (let i = this.shapes.length - 1; i >= 0; i--) {
             const shape = this.shapes[i];
