@@ -165,11 +165,13 @@ class LocalParser {
                 };
             }
             
-            // 6. 匹配删除 "把它删了" / "删除"
-            if (/(把它)?(删了?|去掉|清除)/.test(text)) {
+            // 6. 匹配删除 "把它删了" / "删除"（仅简单指令，带描述词的交给LLM）
+            const deleteMatch = text.match(/^(把它)?(删除|删了?|去掉|清除)$/);
+            if (deleteMatch) {
+                const hasIt = deleteMatch[1];
                 return {
                     action: ACTIONS.DELETE,
-                    target: TARGETS.LAST
+                    target: hasIt ? TARGETS.IT : TARGETS.LAST
                 };
             }
 
