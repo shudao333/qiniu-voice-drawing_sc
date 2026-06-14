@@ -1,14 +1,45 @@
-/* 基于 UI/UX Pro Max 推荐：Inter 字体，#F8FAFC 背景，#3B82F6 主色 */
+/* ============================================================
+   Voice Draw — UI 设计系统 (PR14, 参照 UI/UX Pro Max 准则)
+   产品类型：语音控制绘图工具 (Tool / Productivity)
+   风格：现代 minimal + 精致 elevation，蓝色主色
+   ============================================================ */
+
 :root {
-    --bg-main: #F8FAFC;
+    /* 语义化颜色 token（§6 color-semantic） */
+    --bg-app: #F1F5F9;          /* 应用底色，比侧栏略深，拉开层次 */
     --bg-sidebar: #FFFFFF;
-    --color-primary: #3B82F6;
-    --color-primary-hover: #2563EB;
-    --color-text: #1E293B;
-    --color-text-light: #64748B;
+    --bg-subtle: #F8FAFC;       /* 卡片/输入内部浅底 */
+
+    --color-primary: #4F46E5;       /* 靛蓝主色，比纯蓝更精致 */
+    --color-primary-hover: #4338CA;
+    --color-primary-soft: #EEF2FF;  /* 主色浅背景 */
+
+    --color-text: #0F172A;          /* 主文字 slate-900，对比充足 */
+    --color-text-light: #64748B;    /* 次要文字 */
+    --color-text-muted: #94A3B8;    /* 弱化文字 */
+
+    --color-success: #16A34A;
+    --color-success-soft: #F0FDF4;
+    --color-info: #4F46E5;
+    --color-info-soft: #EEF2FF;
+    --color-danger: #DC2626;
+    --color-danger-soft: #FEF2F2;
+    --color-warning: #D97706;
+
     --border-color: #E2E8F0;
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --border-strong: #CBD5E1;
+
+    /* 统一 elevation 阶梯（§4 elevation-consistent） */
+    --shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+    --shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.08), 0 1px 2px -1px rgba(15, 23, 42, 0.06);
+    --shadow-md: 0 4px 12px -2px rgba(15, 23, 42, 0.1), 0 2px 6px -2px rgba(15, 23, 42, 0.06);
+    --shadow-lg: 0 12px 28px -6px rgba(15, 23, 42, 0.16), 0 6px 12px -6px rgba(15, 23, 42, 0.08);
+
+    /* 圆角阶梯 */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-full: 999px;
 }
 
 * {
@@ -16,12 +47,14 @@
 }
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Roboto, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: var(--bg-main);
+    background-color: var(--bg-app);
     color: var(--color-text);
-    overflow: hidden; /* 防止页面整体滚动，专注画布 */
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
 }
 
 .layout-container {
@@ -30,53 +63,142 @@ body {
     width: 100vw;
 }
 
+/* ===================== 侧栏 ===================== */
 .sidebar {
-    width: 320px;
+    width: 340px;
+    flex-shrink: 0;
     background: var(--bg-sidebar);
     border-right: 1px solid var(--border-color);
-    padding: 24px;
+    padding: 22px 20px;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 20px;
     box-shadow: var(--shadow-sm);
     z-index: 10;
+    overflow-y: auto;
 }
 
-.header h1 {
+/* 侧栏滚动条精致化 */
+.sidebar::-webkit-scrollbar { width: 8px; }
+.sidebar::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: var(--radius-full);
+}
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+
+/* ===================== 品牌头部 ===================== */
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.brand-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, var(--color-primary), #7C3AED);
+    color: #FFFFFF;
+    box-shadow: var(--shadow-sm);
+    flex-shrink: 0;
+}
+
+.brand-text h1 {
     margin: 0;
-    font-size: 24px;
+    font-size: 19px;
     font-weight: 600;
-    color: var(--color-primary);
+    letter-spacing: -0.01em;
+    color: var(--color-text);
 }
 
-.header p {
-    margin: 4px 0 0;
+.brand-text p {
+    margin: 2px 0 0;
     color: var(--color-text-light);
-    font-size: 14px;
+    font-size: 12.5px;
 }
 
+/* ===================== 语音控制区 ===================== */
 .speech-controls {
-    text-align: center;
-    padding: 24px 16px;
-    background: var(--bg-main);
-    border-radius: 12px;
+    padding: 22px 18px;
+    background: var(--bg-subtle);
+    border-radius: var(--radius-lg);
     border: 1px solid var(--border-color);
-    transition: all 0.3s ease;
+    transition: border-color 0.3s ease, background 0.3s ease;
 }
 
-button#mic-btn {
+/* 四态视觉（待命/聆听/思考/异常） */
+.speech-controls.state-listening {
+    border-color: #86EFAC;
+    background: var(--color-success-soft);
+}
+.speech-controls.state-thinking {
+    border-color: #C7D2FE;
+    background: var(--color-info-soft);
+}
+.speech-controls.state-error {
+    border-color: #FECACA;
+    background: var(--color-danger-soft);
+}
+
+/* 麦克风波纹容器 */
+.mic-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mic-ripple {
+    position: absolute;
+    top: 50%;
+    left: 50%;
     width: 100%;
-    padding: 12px 20px;
-    font-size: 16px;
-    font-weight: 500;
+    height: 100%;
+    transform: translate(-50%, -50%);
+    border-radius: var(--radius-md);
+    background: rgba(22, 163, 74, 0.25);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.speech-controls.state-listening .mic-ripple {
+    animation: mic-ripple-anim 1.8s ease-out infinite;
+}
+.speech-controls.state-listening .mic-ripple:nth-child(2) {
+    animation-delay: 0.9s;
+}
+
+@keyframes mic-ripple-anim {
+    0%   { transform: translate(-50%, -50%) scale(1);   opacity: 0.5; }
+    100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+}
+
+/* 麦克风主按钮（唯一主 CTA，§4 primary-action） */
+button#mic-btn {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 13px 20px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
     cursor: pointer;
     border: none;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     background: var(--color-primary);
-    color: white;
-    transition: all 0.2s ease;
+    color: #FFFFFF;
     box-shadow: var(--shadow-sm);
+    transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
 }
+
+button#mic-btn .mic-icon { flex-shrink: 0; }
 
 button#mic-btn:hover:not(:disabled) {
     background: var(--color-primary-hover);
@@ -84,51 +206,198 @@ button#mic-btn:hover:not(:disabled) {
     box-shadow: var(--shadow-md);
 }
 
+button#mic-btn:active:not(:disabled) {
+    transform: translateY(0) scale(0.99);
+}
+
 button#mic-btn:disabled {
-    background: #CBD5E1;
+    background: var(--border-strong);
     cursor: not-allowed;
-    transform: none;
+    opacity: 0.7;
+}
+
+/* 聆听中按钮变绿，呼应状态 */
+.speech-controls.state-listening button#mic-btn {
+    background: var(--color-success);
+}
+
+/* 状态行 */
+.status-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-text-muted);
+    flex-shrink: 0;
+    transition: background 0.3s ease;
+}
+.speech-controls.state-listening .status-dot {
+    background: var(--color-success);
+    animation: dot-pulse 1.4s ease-out infinite;
+}
+.speech-controls.state-thinking .status-dot {
+    background: var(--color-info);
+    animation: dot-pulse 1.2s ease-out infinite;
+}
+.speech-controls.state-error .status-dot {
+    background: var(--color-danger);
+}
+
+@keyframes dot-pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.5); }
+    100% { box-shadow: 0 0 0 7px rgba(22, 163, 74, 0); }
 }
 
 #status-text {
-    margin: 12px 0 0;
-    font-size: 14px;
+    margin: 0;
+    font-size: 13px;
     font-weight: 500;
-}
-
-.result-container h3, .help-panel h3 {
-    margin: 0 0 12px;
-    font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
     color: var(--color-text-light);
 }
 
+/* ===================== 识别结果 ===================== */
+.result-container h3,
+.help-panel h3 {
+    margin: 0 0 10px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text-muted);
+}
+
 .box {
-    min-height: 80px;
-    padding: 16px;
+    min-height: 76px;
+    padding: 14px 16px;
     border: 1px solid var(--border-color);
-    background: var(--bg-main);
-    border-radius: 8px;
-    font-size: 15px;
+    background: var(--bg-subtle);
+    border-radius: var(--radius-md);
+    font-size: 14.5px;
+    line-height: 1.6;
+    word-break: break-word;
+    color: var(--color-text);
+}
+
+/* ===================== 可折叠帮助面板 ===================== */
+.help-panel {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-sidebar);
+}
+
+.help-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 13px 16px;
+    border: none;
+    background: var(--bg-subtle);
+    color: var(--color-text);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+.help-toggle:hover { background: var(--color-primary-soft); }
+
+.help-toggle-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-primary);
+}
+
+.help-arrow {
+    color: var(--color-text-muted);
+    font-size: 12px;
+    transition: transform 0.25s ease;
+}
+.help-toggle[aria-expanded="true"] .help-arrow {
+    transform: rotate(90deg);
+}
+
+.help-content {
+    max-height: 50vh;
+    overflow-y: auto;
+    padding: 6px 16px 14px;
+    transition: max-height 0.3s ease, padding 0.3s ease, opacity 0.3s ease;
+    opacity: 1;
+}
+.help-content.collapsed {
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    opacity: 0;
+}
+.help-content::-webkit-scrollbar { width: 6px; }
+.help-content::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: var(--radius-full);
+}
+
+.help-group {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--border-color);
+}
+.help-group:first-child {
+    margin-top: 6px;
+    padding-top: 0;
+    border-top: none;
+}
+
+.help-group h4 {
+    margin: 0 0 4px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.help-desc {
+    margin: 0 0 8px;
+    font-size: 11.5px;
     line-height: 1.5;
-    word-break: break-all;
+    color: var(--color-text-muted);
 }
 
 .help-panel ul {
     margin: 0;
-    padding-left: 20px;
-    color: var(--color-text-light);
-    font-size: 14px;
-    line-height: 1.8;
+    padding-left: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
 
+.help-panel li {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--color-text-light);
+    padding: 5px 10px;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+}
+
+/* ===================== 画布区 ===================== */
 .canvas-wrapper {
     flex: 1;
     position: relative;
     background-color: #FFFFFF;
-    background-image: radial-gradient(var(--border-color) 1px, transparent 1px);
-    background-size: 20px 20px; /* 弱化的网格背景，提升设计感和尺寸感知 */
+    background-image:
+        radial-gradient(circle, var(--border-color) 1px, transparent 1px);
+    background-size: 22px 22px;
+    background-position: center;
 }
 
 #canvas-container {
@@ -136,32 +405,92 @@ button#mic-btn:disabled {
     height: 100%;
 }
 
-/* 语音/文字反馈气泡（PR13）：右下角悬浮，朗读同步显示 */
+/* 画布空状态提示（§8 empty-states） */
+.canvas-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 0 24px;
+    text-align: center;
+    color: var(--color-text-muted);
+    pointer-events: none;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.canvas-hint svg {
+    color: var(--border-strong);
+}
+.canvas-hint p {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--color-text-light);
+}
+.canvas-hint.hidden {
+    opacity: 0;
+    transform: translate(-50%, -46%);
+    pointer-events: none;
+}
+
+/* ===================== 语音/文字反馈气泡 (PR13) ===================== */
 .feedback-bubble {
     position: fixed;
-    right: 32px;
-    bottom: 32px;
+    right: 28px;
+    bottom: 28px;
     max-width: 360px;
-    padding: 14px 20px;
-    background: var(--color-primary);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 14px 18px;
+    background: var(--color-text);
     color: #FFFFFF;
-    font-size: 15px;
+    font-size: 14.5px;
     line-height: 1.5;
-    border-radius: 14px 14px 2px 14px;
-    box-shadow: var(--shadow-md);
+    border-radius: var(--radius-md) var(--radius-md) 4px var(--radius-md);
+    box-shadow: var(--shadow-lg);
     z-index: 100;
     opacity: 1;
     transform: translateY(0);
     transition: opacity 0.3s ease, transform 0.3s ease;
 }
-
 .feedback-bubble::before {
-    content: "🔊";
-    margin-right: 8px;
+    content: "";
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin-top: 1px;
+    background-color: #A5B4FC;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolygon points='11 5 6 9 2 9 2 15 6 15 11 19 11 5'/%3E%3Cpath d='M15.54 8.46a5 5 0 0 1 0 7.07'/%3E%3Cpath d='M19.07 4.93a10 10 0 0 1 0 14.14'/%3E%3C/svg%3E") no-repeat center / contain;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolygon points='11 5 6 9 2 9 2 15 6 15 11 19 11 5'/%3E%3Cpath d='M15.54 8.46a5 5 0 0 1 0 7.07'/%3E%3Cpath d='M19.07 4.93a10 10 0 0 1 0 14.14'/%3E%3C/svg%3E") no-repeat center / contain;
 }
-
 .feedback-bubble.hidden {
     opacity: 0;
     transform: translateY(12px);
     pointer-events: none;
+}
+
+/* ===================== 响应式 ===================== */
+@media (max-width: 768px) {
+    .layout-container { flex-direction: column; }
+    .sidebar {
+        width: 100%;
+        height: auto;
+        max-height: 45vh;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .canvas-wrapper { flex: 1; }
+}
+
+/* 尊重 reduced-motion（§1 reduced-motion） */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }

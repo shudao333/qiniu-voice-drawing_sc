@@ -1,9 +1,38 @@
 // frontend/js/app.js
 document.addEventListener('DOMContentLoaded', () => {
     const micBtn = document.getElementById('mic-btn');
+    const micLabel = micBtn ? micBtn.querySelector('.mic-label') : null;
     const statusText = document.getElementById('status-text');
     const resultBox = document.getElementById('result-box');
-    
+    const speechControls = document.getElementById('speech-controls');
+    const canvasHint = document.getElementById('canvas-hint');
+
+    /**
+     * 更新麦克风按钮文字，但保留内部 SVG 图标（不能用 textContent 整体覆盖）。
+     */
+    const setMicLabel = (text) => {
+        if (micLabel) micLabel.textContent = text;
+    };
+
+    /**
+     * 画布空状态提示：一旦画布有内容就隐藏，避免遮挡。
+     */
+    const hideCanvasHint = () => {
+        if (canvasHint) canvasHint.classList.add('hidden');
+    };
+
+    /**
+     * 切换语音控制区的状态机视觉（待命/聆听/思考/执行/异常）。
+     * 通过给容器加 state-* 类，由 CSS 驱动边框、背景、状态点、波纹动效。
+     */
+    const setVisualState = (state) => {
+        if (!speechControls) return;
+        speechControls.classList.remove(
+            'state-listening', 'state-thinking', 'state-error'
+        );
+        if (state) speechControls.classList.add(`state-${state}`);
+    };
+
     let speechService = null;
     let allFinalText = ""; // 记录所有最终识别的文本用于页面显示
     let pendingClarifyContext = null; // 用于容错澄清的状态机
@@ -44,29 +73,34 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'ready':
                 statusText.textContent = "点击麦克风开始说话";
                 statusText.style.color = "black";
-                micBtn.textContent = "🎤 开始聆听";
+                setMicLabel("开始聆听");
                 micBtn.disabled = false;
+                setVisualState(null); // 待命
                 break;
             case 'listening':
                 statusText.textContent = "收音中...请说话";
                 statusText.style.color = "green";
-                micBtn.textContent = "⏹️ 停止";
+                setMicLabel("停止聆听");
                 allFinalText = ""; // 每次重新开始时清空记录
+                setVisualState('listening');
                 break;
             case 'unsupported':
                 statusText.textContent = "当前浏览器不支持语音识别，请使用 Chrome/Edge";
                 statusText.style.color = "red";
                 micBtn.disabled = true;
+                setVisualState('error');
                 break;
             case 'unauthorized':
                 statusText.textContent = "未获取麦克风权限，请在浏览器地址栏允许";
                 statusText.style.color = "red";
-                micBtn.textContent = "🎤 权限被拒";
+                setMicLabel("权限被拒");
+                setVisualState('error');
                 break;
             case 'error':
                 statusText.textContent = "识别发生错误，请重试（或检查网络连接）";
                 statusText.style.color = "red";
-                micBtn.textContent = "🎤 重试";
+                setMicLabel("重试");
+                setVisualState('error');
                 break;
         }
     };
@@ -93,6 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 本地 parse 返回的是单个对象，包装为数组
                 if (window.executor) {
                     window.executor.executeCommands([localCommand]);
+                    hideCanvasHint();
                 }
                 // 本地命中也给一个简短反馈（文字气泡 + TTS），形成对话感
                 feedbackService.speak(generateLocalReply(localCommand), speechService);
@@ -112,6 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
         statusText.textContent = "思考中...";
         statusText.style.color = "blue";
         micBtn.disabled = true;
+        setVisualState('thinking');
 
         let isClarify = false;
         let clarifyMsg = "";
@@ -138,6 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (window.executor && llmData.commands) {
                 window.executor.executeCommands(llmData.commands);
+                hideCanvasHint(); // 画布有内容了，隐藏空状态提示
             }
 
             // 执行完成后，用 LLM 给出的自然语言 reply 做文字气泡 + TTS 朗读
@@ -162,6 +199,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     statusText.textContent = "收音中...请说话";
                     statusText.style.color = "green";
                 }
+                // 思考结束，恢复聆听态视觉
+                setVisualState('listening');
             } else {
                 if (isClarify) {
                     statusText.textContent = "🤔 " + clarifyMsg;
@@ -169,6 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     updateStatus('ready');
                 }
+                setVisualState(null);
             }
         }
     };
@@ -194,4 +234,16 @@ document.addEventListener('DOMContentLoaded', () => {
             speechService.start();
         }
     });
+
+    // 帮助面板折叠/展开：让评委不看文档也知道能说什么
+    const helpToggle = document.getElementById('help-toggle');
+    const helpContent = document.getElementById('help-content');
+    const helpArrow = document.getElementById('help-arrow');
+    if (helpToggle && helpContent) {
+        helpToggle.addEventListener('click', () => {
+            const collapsed = helpContent.classList.toggle('collapsed');
+            helpToggle.setAttribute('aria-expanded', String(!collapsed));
+            if (helpArrow) helpArrow.textContent = collapsed ? '▸' : '▾';
+        });
+    }
 });
