@@ -4,6 +4,8 @@ class DrawingExecutor {
     constructor(containerId) {
         this.container = document.getElementById(containerId);
         this.shapes = []; // 存储所有的图形对象
+        this.undoStack = [];
+        this.redoStack = [];
         
         this.initCanvas();
         this.bindResize();
@@ -33,6 +35,33 @@ class DrawingExecutor {
         });
     }
 
+    saveSnapshot() {
+        // 保存当前画布中所有图形的 JSON 快照
+        const snapshot = this.shapes.map(shape => shape.toJSON());
+        this.undoStack.push(snapshot);
+        if (this.undoStack.length > 30) {
+            this.undoStack.shift(); // 限制栈深度防内存膨胀
+        }
+        this.redoStack = []; // 发生新操作时，清空重做栈
+    }
+
+    restoreSnapshot(snapshot) {
+        this.layer.destroyChildren();
+        this.shapes = [];
+        this.selectedShape = null;
+
+        snapshot.forEach(jsonStr => {
+            const shape = Konva.Node.create(jsonStr);
+            // 重新绑定事件
+            shape.on('mouseenter', () => this.stage.container().style.cursor = 'pointer');
+            shape.on('mouseleave', () => this.stage.container().style.cursor = 'default');
+            this.layer.add(shape);
+            this.shapes.push(shape);
+        });
+        
+        this.layer.draw();
+    }
+
     /**
      * 批量执行指令序列
      * @param {Array<CommandItem>} commands 
@@ -41,6 +70,19 @@ class DrawingExecutor {
         if (!Array.isArray(commands)) {
             console.error("[DrawingExecutor] 指令格式错误，预期为数组", commands);
             return;
+        }
+
+        const modifyActions = [
+            window.ParserConfig.ACTIONS.DRAW,
+            window.ParserConfig.ACTIONS.MODIFY,
+            window.ParserConfig.ACTIONS.DELETE,
+            window.ParserConfig.ACTIONS.MOVE,
+            window.ParserConfig.ACTIONS.CLEAR
+        ];
+        
+        const hasModification = commands.some(cmd => modifyActions.includes(cmd.action));
+        if (hasModification) {
+            this.saveSnapshot();
         }
 
         for (const cmd of commands) {
@@ -74,7 +116,10 @@ class DrawingExecutor {
                 this.clearCanvas();
                 break;
             case window.ParserConfig.ACTIONS.UNDO:
-                console.log("[DrawingExecutor] 撤销功能即将实现");
+                this.handleUndo();
+                break;
+            case window.ParserConfig.ACTIONS.REDO:
+                this.handleRedo();
                 break;
             case 'select':
             case window.ParserConfig.ACTIONS.SELECT:
@@ -91,6 +136,32 @@ class DrawingExecutor {
             default:
                 console.warn(`[DrawingExecutor] 尚未支持的 Action: ${cmd.action}`);
         }
+    }
+
+    handleUndo() {
+        if (this.undoStack.length === 0) {
+            console.log("[DrawingExecutor] 撤销栈为空，无法撤销");
+            return;
+        }
+        const currentSnapshot = this.shapes.map(shape => shape.toJSON());
+        this.redoStack.push(currentSnapshot);
+        
+        const previousSnapshot = this.undoStack.pop();
+        this.restoreSnapshot(previousSnapshot);
+        console.log(`[DrawingExecutor] 撤销成功`);
+    }
+
+    handleRedo() {
+        if (this.redoStack.length === 0) {
+            console.log("[DrawingExecutor] 重做栈为空，无法重做");
+            return;
+        }
+        const currentSnapshot = this.shapes.map(shape => shape.toJSON());
+        this.undoStack.push(currentSnapshot);
+        
+        const nextSnapshot = this.redoStack.pop();
+        this.restoreSnapshot(nextSnapshot);
+        console.log(`[DrawingExecutor] 重做成功`);
     }
 
     /**

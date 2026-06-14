@@ -121,9 +121,12 @@ class LocalParser {
                 return { action: ACTIONS.CLEAR };
             }
 
-            // 3. 匹配"撤销"
+            // 3. 匹配"撤销"和"重做"
             if (/撤销|上一步/.test(text)) {
                 return { action: ACTIONS.UNDO };
+            }
+            if (/重做|下一步|恢复/.test(text)) {
+                return { action: ACTIONS.REDO };
             }
 
             // 4. 匹配画图 "画一个红色的圆" 或 "画一个圈"
