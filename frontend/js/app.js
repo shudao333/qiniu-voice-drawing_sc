@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let speechService = null;
     let allFinalText = ""; // 记录所有最终识别的文本用于页面显示
+    let pendingClarifyContext = null; // 用于容错澄清的状态机
 
     const updateStatus = (status) => {
         switch(status) {
@@ -44,25 +45,35 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {string} text 
      */
     const processSpeechText = async (text) => {
-        // 1. 本地极速解析尝试
-        const localCommand = window.parse(text);
-        
-        if (localCommand) {
-            console.log("[Router] 本地解析命中，极速执行:", localCommand);
-            // 本地 parse 返回的是单个对象，包装为数组
-            if (window.executor) {
-                window.executor.executeCommands([localCommand]);
+        if (!text || text.trim() === '') return; // 忽略空文本
+
+        let finalTextToSend = text;
+
+        if (pendingClarifyContext) {
+            // 处于等待补充状态，拼接上下文发给大模型
+            finalTextToSend = `${pendingClarifyContext.originalText}\n助理问：${pendingClarifyContext.clarifyMsg}\n用户补充说：${text}`;
+            console.log("[Router] 存在待澄清上下文，拼接后发给大模型:", finalTextToSend);
+        } else {
+            // 1. 本地极速解析尝试
+            const localCommand = window.parse(text);
+            
+            if (localCommand) {
+                console.log("[Router] 本地解析命中，极速执行:", localCommand);
+                // 本地 parse 返回的是单个对象，包装为数组
+                if (window.executor) {
+                    window.executor.executeCommands([localCommand]);
+                }
+                // 执行成功后恢复默认收音状态，清除可能存在的 clarify 提示
+                if (speechService && speechService.isListening) {
+                    statusText.textContent = "收音中...请说话";
+                    statusText.style.color = "green";
+                }
+                return;
             }
-            // 执行成功后恢复默认收音状态，清除可能存在的 clarify 提示
-            if (speechService && speechService.isListening) {
-                statusText.textContent = "收音中...请说话";
-                statusText.style.color = "green";
-            }
-            return;
         }
 
-        // 2. 本地未命中，走 LLM 兜底路由
-        console.log(`[Router] 本地解析未命中，升级为 LLM 处理: "${text}"`);
+        // 2. 本地未命中或处于澄清状态，走 LLM 兜底路由
+        console.log(`[Router] 准备交由 LLM 处理: "${finalTextToSend}"`);
         
         // 触发大模型请求前，更新 UI 状态为“思考中…”
         statusText.textContent = "思考中...";
@@ -75,13 +86,21 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             // 获取当前画布状态作为上下文
             const canvasContext = window.executor ? window.executor.getCanvasContext() : null;
-            const llmData = await window.ApiService.fetchLLMParse(text, canvasContext);
+            const llmData = await window.ApiService.fetchLLMParse(finalTextToSend, canvasContext);
             console.log("[Router] LLM 解析成功:", llmData);
             
             // 检查是否是大模型发出的 clarify 反问
             if (llmData.commands && llmData.commands.some(c => c.action === 'clarify')) {
                 isClarify = true;
                 clarifyMsg = llmData.reply || "能再说具体一点吗？";
+                // 记住待澄清上下文
+                pendingClarifyContext = {
+                    originalText: finalTextToSend,
+                    clarifyMsg: clarifyMsg
+                };
+            } else {
+                // 成功执行了指令，清除 pending 状态
+                pendingClarifyContext = null;
             }
             
             if (window.executor && llmData.commands) {
@@ -89,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error("[Router] LLM 处理失败:", error);
-            statusText.textContent = "解析失败: " + error.message;
+            statusText.textContent = "未听清或网络波动，请再试一次"; // 友好降级提示
             statusText.style.color = "red";
             // 短暂保留错误提示后再恢复
             await new Promise(resolve => setTimeout(resolve, 2000));
