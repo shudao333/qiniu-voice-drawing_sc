@@ -162,9 +162,18 @@ class LocalParser {
                 };
             }
 
-            // 5. 匹配修改颜色 "涂成红色" / "把它变成蓝色"
+            // 5. 匹配修改颜色 "涂成红色" / "把它变成蓝色"（不含形状描述词的简单指令）
             const modifyMatch = text.match(/(把它)?(涂成|改成|变成|修改成?为?)(红|蓝|绿|黄|黑|白|紫|橙|粉|灰|青|金)色?/);
             if (modifyMatch) {
+                // 检查是否包含形状描述词，如果有就交给LLM处理
+                const shapeKeywords = ['圆', '方块', '矩形', '方形', '线', '三角', '椭圆', '字', '文本'];
+                const hasShapeDesc = shapeKeywords.some(keyword => text.includes(keyword));
+                
+                if (hasShapeDesc) {
+                    // 含有形状描述词，交给LLM处理（如"把圆变成绿色"）
+                    return null;
+                }
+
                 const hasIt = modifyMatch[1];
                 const colorKey = modifyMatch[3];
                 return {

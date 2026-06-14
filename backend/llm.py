@@ -48,6 +48,81 @@ JSON 结构示例：
    返回：{"commands": [{"action": "draw", "shape": "circle", "props": {"color": "#ff0000"}}], "reply": "好的，画了一个红色的圆。"}
 6. rect 的 x,y 为左上角坐标。
 
+【组合图形设计思维 - 遇到新物体时的拆解方法】
+
+当用户要求画一个你没见过示例的组合图形时（如"画一只小鸡"、"画一条鱼"、"画一朵花"），请按以下思维步骤拆解：
+
+步骤1 - 结构分析：
+这个物体由哪些主要部分组成？
+例如：老虎 = 脸（椭圆）+ 眼睛×2（小圆）+鼻子（三角）+ 嘴（线）+ 耳朵×2（三角）+胡须（多条线）+ 身体（椭圆）+ 条纹（线）
+
+步骤2 - 形状映射：
+每个部分用哪个基础图形最合适？
+- 圆润的部分 →circle 或 ellipse
+- 方正的部分 →rect
+- 尖锐的部分 →triangle
+- 细长的部分 →line
+- 文字标注 →text
+
+步骤3 - 颜色选择：
+符合物体的真实或卡通配色，用合理的HEX代码。
+例如：老虎=橙色身体(#FFA500) + 黑色条纹(#000000) + 白色肚子(#FFFFFF)
+
+步骤4 - 比例与布局：
+- 主体图形放在画布中心（约 x:300, y:250）
+- 重要部件的尺寸要协调（眼睛不要比脸还大）
+- 部件之间的相对位置要合理（眼睛在脸的上半部分，嘴在下半部分）
+- 画布尺寸约600x500，避免图形超出边界
+
+步骤5 - 层次与细节：
+- 先画大轮廓（身体、脸），再画细节（眼睛、嘴）
+- 适当简化：用基础图形抽象表达，不追求写实细节
+- 关键特征突出：老虎的条纹、兔子的长耳朵、鱼的鳍等
+
+【设计思维应用示例】
+
+用户："画一只老虎"
+
+思考过程：
+1. 结构：脸(大圆) + 耳朵×2(小三角)+ 眼睛×2(小圆)+ 鼻子(小三角) + 嘴(线) + 胡须(线×6)+ 身体(椭圆) + 条纹(线×4)
+2. 形状映射：脸用circle，身体用ellipse，耳朵和鼻子用triangle，条纹和胡须用line
+3. 颜色：主体橙色#FFA500，条纹黑色#000000，眼睛白色+黑色，鼻子粉色#FFC0CB
+4. 布局：脸在中上部(300,200)，身体在中下部(300,320)，耳朵在脸顶部左右
+5. 尺寸协调：脸半径60，眼睛半径8，鼻子小三角size:15，身体radiusX:70 radiusY:50
+
+返回：
+{
+  "commands": [
+    {"action": "draw", "shape": "circle", "props": {"x": 300, "y": 200, "radius": 60, "color": "#FFA500"}},
+    {"action": "draw", "shape": "triangle", "props": {"x": 270, "y": 150, "size": 20, "color": "#FFA500"}},
+    {"action": "draw", "shape": "triangle", "props": {"x": 330, "y": 150, "size": 20, "color": "#FFA500"}},
+    {"action": "draw", "shape": "circle", "props": {"x": 280, "y": 190, "radius": 8, "color": "#FFFFFF"}},
+    {"action": "draw", "shape": "circle", "props": {"x": 285, "y": 190, "radius": 4, "color": "#000000"}},
+    {"action": "draw", "shape": "circle", "props": {"x": 320, "y": 190, "radius": 8, "color": "#FFFFFF"}},
+    {"action": "draw", "shape": "circle", "props": {"x": 315, "y": 190, "radius": 4, "color": "#000000"}},
+    {"action": "draw", "shape": "triangle", "props": {"x": 300, "y": 205, "size": 12, "color": "#FFC0CB"}},
+    {"action": "draw", "shape": "line", "props": {"x1": 300, "y1": 215, "x2": 300, "y2": 225, "color": "#000000", "strokeWidth": 2}},
+    {"action": "draw", "shape": "line", "props": {"x1": 250, "y1": 195, "x2": 230, "y2": 190, "color": "#000000", "strokeWidth": 2}},
+    {"action": "draw", "shape": "line", "props": {"x1": 250, "y1": 200, "x2": 230, "y2": 200, "color": "#000000", "strokeWidth": 2}},
+    {"action": "draw", "shape": "line", "props": {"x1": 250, "y1": 205, "x2": 230, "y2": 210, "color": "#000000", "strokeWidth": 2}},
+    {"action": "draw", "shape": "line", "props": {"x1": 350, "y1": 195, "x2": 370, "y2": 190, "color": "#000000", "strokeWidth": 2}},
+    {"action": "draw", "shape": "line", "props": {"x1": 350, "y1": 200, "x2": 370, "y2": 200, "color": "#000000", "strokeWidth": 2}},
+    {"action": "draw", "shape": "line", "props": {"x1": 350, "y1": 205, "x2": 370, "y2": 210, "color": "#000000", "strokeWidth": 2}},
+    {"action": "draw", "shape": "ellipse", "props": {"x": 300, "y": 320, "radiusX": 70, "radiusY": 50, "color": "#FFA500"}},
+    {"action": "draw", "shape": "line", "props": {"x1": 260, "y1": 310, "x2": 260, "y2": 330, "color": "#000000", "strokeWidth": 3}},
+    {"action": "draw", "shape": "line", "props": {"x1": 280, "y1": 305, "x2": 280, "y2": 335, "color": "#000000", "strokeWidth": 3}},
+    {"action": "draw", "shape": "line", "props": {"x1": 320, "y1": 305, "x2": 320, "y2": 335, "color": "#000000", "strokeWidth": 3}},
+    {"action": "draw", "shape": "line", "props": {"x1": 340, "y1": 310, "x2": 340, "y2": 330, "color": "#000000", "strokeWidth": 3}}
+  ],
+  "reply": "好的，我画了一只卡通老虎，有橙色的脸和身体、两只耳朵、眼睛、鼻子、胡须和黑色的条纹。"
+}
+
+关键原则：
+- 遇到新物体时，**先在脑海中分解结构，再逐一映射到基础图形**
+- 保持简笔画/卡通风格，不追求写实细节
+- 注重特征识别度：用户看到后能认出"这是个老虎/小鸡/鱼"即可
+- 颜色和比例协调，部件相对位置合理
+
 【组合图形标准模板 - 请严格参考以下拆解方式】
 
 示例1 - 画一个房子：
