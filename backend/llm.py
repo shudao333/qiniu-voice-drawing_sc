@@ -6,13 +6,13 @@ from dotenv import load_dotenv
 # 确保加载 .env 文件中的环境变量
 load_dotenv()
 
-API_KEY = os.getenv("QINIU_API_KEY")
+API_KEY = os.getenv("DEEPSEEK_API_KEY")
 
 def get_openai_client():
     if not API_KEY:
-        raise ValueError("环境配置错误：未找到 QINIU_API_KEY，请确保在 .env 中设置了该环境变量。")
+        raise ValueError("环境配置错误：未找到 DEEPSEEK_API_KEY，请确保在 .env 中设置了该环境变量。")
     return OpenAI(
-        base_url="https://api.qnaigc.com/v1",
+        base_url="https://api.deepseek.com",
         api_key=API_KEY
     )
 
@@ -332,14 +332,13 @@ def parse_text_to_commands(text: str, context: dict = None) -> str:
         system_prompt = SYSTEM_PROMPT + context_info
 
     response = client.chat.completions.create(
-        model="deepseek/deepseek-v4-pro", # 换回 v4-pro
+        model="deepseek-v4-pro",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": text}
         ],
         temperature=0.1,  # 使用低温度保证输出格式的稳定性
-        response_format={"type": "json_object"},
-        extra_body={"thinking": {"type": "disabled"}} # 根据官方文档精准关闭深度思考
+        response_format={"type": "json_object"}
     )
     
     content = response.choices[0].message.content
