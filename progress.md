@@ -48,6 +48,21 @@
   - 切换分支并更新代码 (main -> feat/parser-router) (PR8)
   - 强制调用 `code-reviewer` 审查并实现了健壮的智能路由机制。在 `frontend/js/api.js` 中封装了 Fetch 请求调用后端 LLM。
   - 修改 `app.js` 统一入口，优先走 `window.parse` (PR5) 本地极速响应。若未命中，自动调用 `api.js` 走大模型解析，并严密控制了 UI "思考中..." 的状态轮转与异步错误捕获。
+  - 根据测试反馈，在 `parser.js` 中增加了“贪心拦截”校验，遇到 15 字以上或复杂连词时强制交给 LLM。
+  - 在 `app.js` 和 `executor.js` 中妥善处理了 LLM 的 `clarify` 反问指令，用醒目的橙色字在状态栏与用户互动。
+  - 测试通过，执行 git commit 和 push (PR8)
+  - 切换分支并更新代码 (main -> feat/modify-move) (PR9)
+  - 完善 `handleModify` 以支持通过大模型传入的宽高、半径等尺寸参数和颜色属性的修改。
+  - 完善 `handleMove` 获取 dx 和 dy 对图形进行平移。
+  - 确认并沿用了针对 `target: "last"` 的精准选中逻辑，操作当前形状数组的末位元素。
+  - 增加了 UI 联动 `highlightShape`：修改或移动目标时，会为该目标添加 500 毫秒的金色高亮描边与发光效果，提供“被操纵”的视觉反馈。
+  - 修复 `line` 支持 `{x1,y1,x2,y2}` 和 `points` 两种格式。
+  - 新增 `triangle` / `text` / `ellipse` 图元渲染支持。
+  - `rect` 坐标语义统一为「左上角」，并更新 `backend/llm.py` 的 system prompt 同步此规则。
+  - 修复 `handleDraw`：带有自有坐标的图元 (如 line, triangle) 不再被画布中心兜底坐标覆盖。
+  - 完善 `getTargetShape` 支持按颜色、形状描述遍历选中，以及通过 `target: "selected"` 返回 `this.selectedShape`。
+  - 新增 `handleSelect`：按条件找到目标并设置金色描边高亮，将其置为选中图形。
+  - 测试通过，执行 git commit 和 push (PR9)
 - Files created/modified:
   - .gitignore (modified)
   - README.md (modified)

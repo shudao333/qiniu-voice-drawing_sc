@@ -29,7 +29,8 @@ const ACTIONS = {
 const TARGETS = {
     LAST: 'last',
     SELECTED: 'selected',
-    ALL: 'all'
+    ALL: 'all',
+    IT: 'it'
 };
 
 /**
@@ -150,12 +151,13 @@ class LocalParser {
             }
 
             // 5. 匹配修改颜色 "涂成红色" / "把它变成蓝色"
-            const modifyMatch = text.match(/(涂成|改成|变成|修改成?为?)(红|蓝|绿|黄|黑|白|紫)色?/);
+            const modifyMatch = text.match(/(把它)?(涂成|改成|变成|修改成?为?)(红|蓝|绿|黄|黑|白|紫)色?/);
             if (modifyMatch) {
-                const colorKey = modifyMatch[2];
+                const hasIt = modifyMatch[1];
+                const colorKey = modifyMatch[3];
                 return {
                     action: ACTIONS.MODIFY,
-                    target: TARGETS.LAST, // 暂时默认操作上一个对象
+                    target: hasIt ? TARGETS.IT : TARGETS.LAST,
                     props: { color: this.synonyms.color[colorKey] }
                 };
             }
@@ -169,9 +171,10 @@ class LocalParser {
             }
 
             // 7. 匹配移动 "向右移动一点" 或 "把它移到左边"
-            const moveMatch = text.match(/(向|移到)(上|下|左|右)(边|面|移动|移)?/);
+            const moveMatch = text.match(/(把它)?(向|移到)(上|下|左|右)(边|面|移动|移)?/);
             if (moveMatch) {
-                const direction = moveMatch[2];
+                const hasIt = moveMatch[1];
+                const direction = moveMatch[3];
                 let dx = 0, dy = 0;
                 const step = 50; // 默认移动像素
                 if (direction === '上') dy = -step;
@@ -181,7 +184,7 @@ class LocalParser {
 
                 return {
                     action: ACTIONS.MOVE,
-                    target: TARGETS.LAST,
+                    target: hasIt ? TARGETS.IT : TARGETS.LAST,
                     props: { dx, dy }
                 };
             }

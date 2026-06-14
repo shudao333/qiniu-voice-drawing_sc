@@ -220,3 +220,11 @@ __marimo__/
 # Node
 node_modules/
 .gemini/
+
+# 内部工作文档（分析/执行方案/agent 指令，含开发痕迹，不进比赛仓库）
+审视报告-PR8验收与项目诊断.md
+详细执行方案-PR9至PR15.md
+Agent启动指令-复制粘贴.md
+_tmp_*.py
+_tmp_*.json
+_tmp_*.txt
