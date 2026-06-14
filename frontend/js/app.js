@@ -7,6 +7,37 @@ document.addEventListener('DOMContentLoaded', () => {
     let speechService = null;
     let allFinalText = ""; // 记录所有最终识别的文本用于页面显示
     let pendingClarifyContext = null; // 用于容错澄清的状态机
+    const feedbackService = new window.FeedbackService(); // 语音/文字反馈
+
+    /**
+     * 为本地极速指令生成简短的口语反馈，
+     * 让本地命中的指令也有"听到确认"的对话感（与 LLM 的 reply 对齐）。
+     */
+    const generateLocalReply = (command) => {
+        const A = window.ParserConfig.ACTIONS;
+        const shapeNames = {
+            circle: '圆', rect: '矩形', line: '线条',
+            triangle: '三角形', text: '文字', ellipse: '椭圆'
+        };
+        switch (command.action) {
+            case A.DRAW:
+                return `好的，画了一个${shapeNames[command.shape] || '图形'}`;
+            case A.MODIFY:
+                return '好的，颜色改好了';
+            case A.MOVE:
+                return '好的，移动好了';
+            case A.DELETE:
+                return '好的，删除了';
+            case A.CLEAR:
+                return '好的，已清空画布';
+            case A.UNDO:
+                return '好的，已撤销';
+            case A.REDO:
+                return '好的，已重做';
+            default:
+                return '好的';
+        }
+    };
 
     const updateStatus = (status) => {
         switch(status) {
@@ -63,6 +94,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (window.executor) {
                     window.executor.executeCommands([localCommand]);
                 }
+                // 本地命中也给一个简短反馈（文字气泡 + TTS），形成对话感
+                feedbackService.speak(generateLocalReply(localCommand), speechService);
                 // 执行成功后恢复默认收音状态，清除可能存在的 clarify 提示
                 if (speechService && speechService.isListening) {
                     statusText.textContent = "收音中...请说话";
@@ -105,6 +138,12 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (window.executor && llmData.commands) {
                 window.executor.executeCommands(llmData.commands);
+            }
+
+            // 执行完成后，用 LLM 给出的自然语言 reply 做文字气泡 + TTS 朗读
+            // clarify 反问同样朗读，形成"听到追问"的对话感
+            if (llmData.reply) {
+                feedbackService.speak(llmData.reply, speechService);
             }
         } catch (error) {
             console.error("[Router] LLM 处理失败:", error);
