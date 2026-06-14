@@ -73,7 +73,9 @@ document.addEventListener('DOMContentLoaded', () => {
         let clarifyMsg = "";
 
         try {
-            const llmData = await window.ApiService.fetchLLMParse(text);
+            // 获取当前画布状态作为上下文
+            const canvasContext = window.executor ? window.executor.getCanvasContext() : null;
+            const llmData = await window.ApiService.fetchLLMParse(text, canvasContext);
             console.log("[Router] LLM 解析成功:", llmData);
             
             // 检查是否是大模型发出的 clarify 反问

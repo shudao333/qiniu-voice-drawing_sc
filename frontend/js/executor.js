@@ -456,6 +456,38 @@ class DrawingExecutor {
         this.layer.draw();
         console.log(`[DrawingExecutor] 画布已清空`);
     }
+
+    /**
+     * 获取画布当前状态，供LLM上下文使用
+     * @returns {Object} 画布状态摘要
+     */
+    getCanvasContext() {
+        const context = {
+            totalShapes: this.shapes.length,
+            shapes: this.shapes.map((shape, index) => {
+                const info = {
+                    index: index + 1,
+                    type: shape.getClassName().toLowerCase(),
+                    color: shape.fill() || shape.stroke() || 'unknown'
+                };
+
+                // 标记选中状态
+                if (this.selectedShape === shape) {
+                    info.isSelected = true;
+                }
+
+                // 标记最后一个
+                if (index === this.shapes.length - 1) {
+                    info.isLast = true;
+                }
+
+                return info;
+            }),
+            hasSelected: !!this.selectedShape
+        };
+
+        return context;
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {

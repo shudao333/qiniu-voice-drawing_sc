@@ -110,7 +110,8 @@ class LocalParser {
                 console.log("[LocalParser] 文本超过 15 字符，强制降级 LLM");
                 return null;
             }
-            const complexKeywords = ['然后', '把', '最后', '里面', '旁边', '左边', '右边', '和'];
+            // 【强制拦截规则】如果包含复杂的连词或介词，直接交给大模型处理
+            const complexKeywords = ['然后', '最后', '里面', '旁边', '和'];
             if (complexKeywords.some(keyword => text.includes(keyword))) {
                 console.log("[LocalParser] 包含复杂位置或逻辑词汇，强制降级 LLM");
                 return null;

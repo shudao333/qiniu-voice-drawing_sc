@@ -44,13 +44,35 @@ JSON 结构示例：
 6. rect 的 x,y 为左上角坐标。
 """
 
-def parse_text_to_commands(text: str) -> str:
+def parse_text_to_commands(text: str, context: dict = None) -> str:
     """调用七牛云大模型解析文本为指令 JSON 字符串"""
     client = get_openai_client()
+
+    # 构建增强的 system prompt
+    system_prompt = SYSTEM_PROMPT
+
+    if context and context.get('shapes'):
+        # 将画布状态注入到 system prompt
+        context_info = "\n\n【当前画布状态】\n"
+        context_info += f"画布上共有 {context['totalShapes']} 个图形：\n"
+
+        for shape_info in context['shapes']:
+            desc = f"{shape_info['index']}. {shape_info['type']} (颜色: {shape_info['color']})"
+            if shape_info.get('isSelected'):
+                desc += " ←当前选中"
+            if shape_info.get('isLast'):
+                desc += " ←最后绘制"
+            context_info += desc + "\n"
+
+        context_info += f"\n{'有' if context['hasSelected'] else '无'}图形被选中。\n"
+        context_info += "\n重要提示：当用户说'它'/'那个'等指代词时，如果有选中的图形，优先指向选中的；否则指向最后绘制的。"
+
+        system_prompt = SYSTEM_PROMPT + context_info
+
     response = client.chat.completions.create(
         model="deepseek/deepseek-v4-pro", # 换回 v4-pro
         messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "system", "content": system_prompt},
             {"role": "user", "content": text}
         ],
         temperature=0.1,  # 使用低温度保证输出格式的稳定性
