@@ -124,7 +124,7 @@ qiniu-voice-drawing_sc/
 
 ## 🎬 Demo 视频
 
-> 待补充（录制脚本见 `视频脚本.md`）
+https://www.bilibili.com/video/BV1PaJK65Eod/?spm_id_from=333.1387.homepage.video_card.click&vd_source=32b33979066c0fdbd55374297dac16a3
 
 ---
 
