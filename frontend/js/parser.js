@@ -77,7 +77,10 @@ class LocalParser {
             shape: {
                 '圆': 'circle', '圆形': 'circle', '圈': 'circle',
                 '方块': 'rect', '方形': 'rect', '矩形': 'rect', '长方形': 'rect', '正方形': 'rect',
-                '线': 'line', '直线': 'line', '线条': 'line'
+                '线': 'line', '直线': 'line', '线条': 'line',
+                '三角': 'triangle', '三角形': 'triangle',
+                '字': 'text', '文字': 'text', '文本': 'text',
+                '椭圆': 'ellipse', '椭圆形': 'ellipse'
             },
             color: {
                 '红': '#EF4444', '红色': '#EF4444',
@@ -86,7 +89,12 @@ class LocalParser {
                 '黄': '#F59E0B', '黄色': '#F59E0B',
                 '黑': '#1E293B', '黑色': '#1E293B',
                 '白': '#FFFFFF', '白色': '#FFFFFF',
-                '紫': '#8B5CF6', '紫色': '#8B5CF6'
+                '紫': '#8B5CF6', '紫色': '#8B5CF6',
+                '橙': '#F97316', '橙色': '#F97316',
+                '粉': '#EC4899', '粉色': '#EC4899',
+                '灰': '#6B7280', '灰色': '#6B7280',
+                '青': '#14B8A6', '青色': '#14B8A6',
+                '金': '#EAB308', '金色': '#EAB308'
             }
         };
     }
@@ -131,11 +139,11 @@ class LocalParser {
             }
 
             // 4. 匹配画图 "画一个红色的圆" 或 "画一个圈"
-            // 支持模式: (画|来|搞)一个(颜色)的(形状)
-            let drawMatch = text.match(/(画|来|搞|弄)一个?(.*)?(红|蓝|绿|黄|黑|白|紫)色的?(圆|圆形|圈|方块|方形|矩形|长方形|正方形|线|直线)/);
+            // 支持模式: (画|来|搞|弄|给我画)一个(颜色)的(形状)
+            let drawMatch = text.match(/(画|来|搞|弄|给我画)一个?(.*)?(红|蓝|绿|黄|黑|白|紫|橙|粉|灰|青|金)色的?(圆|圆形|圈|方块|方形|矩形|长方形|正方形|线|直线|线条|三角|三角形|字|文字|文本|椭圆|椭圆形)/);
             if (!drawMatch) {
                 // 如果没有颜色匹配，尝试单纯匹配形状
-                drawMatch = text.match(/(画|来|搞|弄)一个?(圆|圆形|圈|方块|方形|矩形|长方形|正方形|线|直线)/);
+                drawMatch = text.match(/(画|来|搞|弄|给我画)一个?(圆|圆形|圈|方块|方形|矩形|长方形|正方形|线|直线|线条|三角|三角形|字|文字|文本|椭圆|椭圆形)/);
                 if (drawMatch) {
                     const shapeKey = drawMatch[2];
                     return {
@@ -155,7 +163,7 @@ class LocalParser {
             }
 
             // 5. 匹配修改颜色 "涂成红色" / "把它变成蓝色"
-            const modifyMatch = text.match(/(把它)?(涂成|改成|变成|修改成?为?)(红|蓝|绿|黄|黑|白|紫)色?/);
+            const modifyMatch = text.match(/(把它)?(涂成|改成|变成|修改成?为?)(红|蓝|绿|黄|黑|白|紫|橙|粉|灰|青|金)色?/);
             if (modifyMatch) {
                 const hasIt = modifyMatch[1];
                 const colorKey = modifyMatch[3];
@@ -167,7 +175,7 @@ class LocalParser {
             }
             
             // 6. 匹配删除 "把它删了" / "删除"（仅简单指令，带描述词的交给LLM）
-            const deleteMatch = text.match(/^(把它)?(删除|删了?|去掉|清除)$/);
+            const deleteMatch = text.match(/^(把它)?(删除|删了?|去掉|清除|抹掉|擦掉)$/);
             if (deleteMatch) {
                 const hasIt = deleteMatch[1];
                 return {
