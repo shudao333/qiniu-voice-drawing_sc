@@ -40,23 +40,70 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     /**
-     * 处理语音文本，进行解析和执行
+     * 处理语音文本，进行智能路由（本地极速 -> LLM 兜底）
      * @param {string} text 
      */
-    const processSpeechText = (text) => {
-        // 1. 调用本地解析器
-        const commandData = window.parse(text);
+    const processSpeechText = async (text) => {
+        // 1. 本地极速解析尝试
+        const localCommand = window.parse(text);
         
-        if (commandData) {
-            console.log("[App] 本地解析成功:", commandData);
-            // 2. 调用执行引擎渲染画面
+        if (localCommand) {
+            console.log("[Router] 本地解析命中，极速执行:", localCommand);
             if (window.executor) {
-                // parse 当前返回单个 CommandItem 对象，用数组包裹传入
-                window.executor.executeCommands([commandData]);
+                window.executor.executeCommands([localCommand]);
             }
-        } else {
-            console.log(`[App] 本地解析未命中，待后续接入 LLM 处理: "${text}"`);
-            // TODO: 后续 PR7 将发送至后端 API 走大模型解析
+            if (speechService && speechService.isListening) {
+                statusText.textContent = "收音中...请说话";
+                statusText.style.color = "green";
+            }
+            return;
+        }
+
+        // 2. 本地未命中，走 LLM 兜底路由
+        console.log(`[Router] 本地解析未命中，升级为 LLM 处理: "${text}"`);
+        
+        statusText.textContent = "思考中...";
+        statusText.style.color = "blue";
+        micBtn.disabled = true;
+
+        let isClarify = false;
+        let clarifyMsg = "";
+
+        try {
+            const llmData = await window.ApiService.fetchLLMParse(text);
+            console.log("[Router] LLM 解析成功:", llmData);
+            
+            if (llmData.commands && llmData.commands.some(c => c.action === 'clarify')) {
+                isClarify = true;
+                clarifyMsg = llmData.reply || "能再说具体一点吗？";
+            }
+            
+            if (window.executor && llmData.commands) {
+                window.executor.executeCommands(llmData.commands);
+            }
+        } catch (error) {
+            console.error("[Router] LLM 处理失败:", error);
+            statusText.textContent = "解析失败: " + error.message;
+            statusText.style.color = "red";
+            await new Promise(resolve => setTimeout(resolve, 2000));
+        } finally {
+            micBtn.disabled = false;
+            if (speechService && speechService.isListening) {
+                if (isClarify) {
+                    statusText.textContent = "🤔 " + clarifyMsg;
+                    statusText.style.color = "orange";
+                } else {
+                    statusText.textContent = "收音中...请说话";
+                    statusText.style.color = "green";
+                }
+            } else {
+                if (isClarify) {
+                    statusText.textContent = "🤔 " + clarifyMsg;
+                    statusText.style.color = "orange";
+                } else {
+                    updateStatus('ready');
+                }
+            }
         }
     };
 

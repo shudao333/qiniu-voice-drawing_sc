@@ -13,6 +13,7 @@ Phase 1
 - [x] PR1: `feat/backend-skeleton` - FastAPI 起服务 + 健康检查 + 静态托管
 - [x] PR2: `feat/speech-input` - 前端麦克风 + Web Speech 实时转文字
 - [x] PR3: `feat/canvas-base` - Konva 画布 + 基础图形渲染
+- [x] PR9: `feat/modify-move` - 修改属性 / 移动 / 选中图形
 - **Status:** complete
 
 ### Phase 2: 核心链路闭环 (Day 1 晚 - Day 2 上午)
@@ -26,8 +27,8 @@ Phase 1
 ### Phase 3: 大模型接入与复杂交互 (Day 2 下午 - 晚)
 - [x] PR7: `feat/llm-parse` - 后端接七牛云 LLM,自然语言→指令序列
 - **Status:** complete
-- [ ] PR8: `feat/parser-router` - 本地优先 + LLM 兜底的路由
-- **Status:** pending
+- [x] PR8: `feat/parser-router` - 本地优先 + LLM 兜底的路由
+- **Status:** complete
 - [ ] PR10: `feat/undo-delete` - 撤销/重做/删除/清空
 - **Status:** in_progress
 
