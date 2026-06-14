@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const setVisualState = (state) => {
         if (!speechControls) return;
         speechControls.classList.remove(
-            'state-listening', 'state-thinking', 'state-error'
+            'state-listening', 'state-thinking', 'state-error', 'state-drawing'
         );
         if (state) speechControls.classList.add(`state-${state}`);
     };
@@ -172,9 +172,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 pendingClarifyContext = null;
             }
             
-            if (window.executor && llmData.commands) {
+            if (window.executor && llmData.commands && !isClarify) {
+                hideCanvasHint(); // 画布即将有内容，隐藏空状态提示
+                // 复杂图形（多个图元）用流式逐个绘制，给"AI 正在作画"的过程感
+                if (llmData.commands.length > 1) {
+                    statusText.textContent = "正在绘制...";
+                    statusText.style.color = "#4F46E5";
+                    setVisualState('drawing');
+                    await window.executor.executeCommandsStreaming(llmData.commands);
+                } else {
+                    window.executor.executeCommands(llmData.commands);
+                }
+            } else if (window.executor && llmData.commands) {
+                // clarify 等情况仍走普通执行（内部会跳过绘制）
                 window.executor.executeCommands(llmData.commands);
-                hideCanvasHint(); // 画布有内容了，隐藏空状态提示
             }
 
             // 执行完成后，用 LLM 给出的自然语言 reply 做文字气泡 + TTS 朗读

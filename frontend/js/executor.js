@@ -88,8 +88,79 @@ class DrawingExecutor {
         for (const cmd of commands) {
             this.executeSingleCommand(cmd);
         }
-        
+
         this.layer.draw(); // 批量处理完后统一渲染一次
+    }
+
+    /**
+     * 流式执行指令序列：组合图形的各个图元逐个淡入显现，
+     * 让"AI 正在一笔一笔画出来"的过程可见（参照 UI/UX 准则 motion-meaning / progressive-loading）。
+     * @param {Array<CommandItem>} commands
+     * @param {Object} options - { stepDelay: 每个图元间隔(ms), onProgress: (done,total)=>void }
+     * @returns {Promise<void>}
+     */
+    async executeCommandsStreaming(commands, options = {}) {
+        if (!Array.isArray(commands)) {
+            console.error("[DrawingExecutor] 指令格式错误，预期为数组", commands);
+            return;
+        }
+
+        const stepDelay = options.stepDelay !== undefined ? options.stepDelay : 90;
+        const onProgress = typeof options.onProgress === 'function' ? options.onProgress : null;
+
+        const modifyActions = [
+            window.ParserConfig.ACTIONS.DRAW,
+            window.ParserConfig.ACTIONS.MODIFY,
+            window.ParserConfig.ACTIONS.DELETE,
+            window.ParserConfig.ACTIONS.MOVE,
+            window.ParserConfig.ACTIONS.CLEAR
+        ];
+        const hasModification = commands.some(cmd => modifyActions.includes(cmd.action));
+        if (hasModification) {
+            this.saveSnapshot();
+        }
+
+        // 只有 2 个以上 draw 才值得流式；单个图元/纯编辑指令直接执行不延时
+        const drawCount = commands.filter(c => c && c.action === window.ParserConfig.ACTIONS.DRAW).length;
+        const shouldStream = drawCount >= 2;
+
+        let drawnSoFar = 0;
+        for (const cmd of commands) {
+            const beforeLen = this.shapes.length;
+            this.executeSingleCommand(cmd);
+
+            const isDraw = cmd && cmd.action === window.ParserConfig.ACTIONS.DRAW;
+            const addedShape = this.shapes.length > beforeLen;
+
+            if (shouldStream && isDraw && addedShape) {
+                const newShape = this.shapes[this.shapes.length - 1];
+                this.fadeInShape(newShape);
+                this.layer.draw();
+                drawnSoFar++;
+                if (onProgress) onProgress(drawnSoFar, drawCount);
+                await this.sleep(stepDelay);
+            }
+        }
+
+        this.layer.draw();
+    }
+
+    /**
+     * 让单个图元从透明淡入到原本不透明度（流式绘制的视觉单元）。
+     */
+    fadeInShape(shape) {
+        if (!shape) return;
+        const targetOpacity = shape.opacity();
+        shape.opacity(0);
+        shape.to({
+            opacity: targetOpacity,
+            duration: 0.22,
+            easing: Konva.Easings.EaseOut
+        });
+    }
+
+    sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     /**
@@ -407,9 +478,62 @@ class DrawingExecutor {
                 } else {
                     points = [props.x || 0, props.y || 0, (props.x || 0) + 100, props.y || 0];
                 }
+                const lineClosed = props.closed === true;
                 shape = new Konva.Line({
                     points: points,
-                    stroke: props.color || '#000000', strokeWidth: props.strokeWidth || 4, ...commonProps
+                    stroke: props.color || '#000000',
+                    strokeWidth: props.strokeWidth || 4,
+                    // tension>0 把折线渲染为平滑曲线，用于勾勒有机轮廓（胡须、微笑、流畅线条）
+                    tension: props.tension || 0,
+                    lineCap: 'round',
+                    lineJoin: 'round',
+                    // 闭合的曲线可填充，画有机形状（云朵、水滴、不规则身体）
+                    closed: lineClosed,
+                    fill: lineClosed ? (props.fill || undefined) : undefined,
+                    ...commonProps
+                });
+                break;
+            case 'polygon':
+                // 任意多点闭合填充形状，用于不规则身体、轮廓、几何造型
+                // tension>0 时变为平滑的有机 blob 形状（如云、池塘、花瓣团）
+                shape = new Konva.Line({
+                    points: props.points || [],
+                    closed: true,
+                    tension: props.tension || 0,
+                    fill: props.color || props.fill || '#8B5CF6',
+                    stroke: props.stroke || undefined,
+                    strokeWidth: props.stroke ? (props.strokeWidth || 2) : 0,
+                    lineJoin: 'round',
+                    ...commonProps
+                });
+                break;
+            case 'arc':
+                // 弧形/弧带：用于微笑、眉毛、彩虹、肚皮曲线、月牙
+                // innerRadius==outerRadius → 细弧线；inner<outer → 填充弧带
+                shape = new Konva.Arc({
+                    x: props.x || 100, y: props.y || 100,
+                    innerRadius: props.innerRadius !== undefined ? props.innerRadius : (props.radius || 40),
+                    outerRadius: props.outerRadius !== undefined ? props.outerRadius : (props.radius || 40),
+                    angle: props.angle !== undefined ? props.angle : 180,
+                    rotation: props.rotation || 0,
+                    fill: props.fill || undefined,
+                    stroke: props.color || props.stroke || '#000000',
+                    strokeWidth: props.strokeWidth || 3,
+                    lineCap: 'round',
+                    ...commonProps
+                });
+                break;
+            case 'wedge':
+                // 扇形：用于尾巴、耳朵、嘴巴、派图、光束
+                shape = new Konva.Wedge({
+                    x: props.x || 100, y: props.y || 100,
+                    radius: props.radius || 50,
+                    angle: props.angle !== undefined ? props.angle : 60,
+                    rotation: props.rotation || 0,
+                    fill: props.color || props.fill || '#F59E0B',
+                    stroke: props.stroke || undefined,
+                    strokeWidth: props.stroke ? (props.strokeWidth || 2) : 0,
+                    ...commonProps
                 });
                 break;
             case 'triangle':

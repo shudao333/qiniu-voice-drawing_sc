@@ -65,9 +65,13 @@ body {
 
 /* ===================== 侧栏 ===================== */
 .sidebar {
+    position: relative;
     width: 340px;
     flex-shrink: 0;
-    background: var(--bg-sidebar);
+    /* 精致渐变底 + 顶部品牌色光晕，告别纯白单调（§4 effects-match-style） */
+    background:
+        radial-gradient(120% 60% at 0% 0%, rgba(79, 70, 229, 0.10) 0%, rgba(124, 58, 237, 0.04) 35%, rgba(255, 255, 255, 0) 70%),
+        linear-gradient(180deg, #FFFFFF 0%, #FBFAFF 60%, #F6F7FB 100%);
     border-right: 1px solid var(--border-color);
     padding: 22px 20px;
     display: flex;
@@ -123,10 +127,12 @@ body {
 /* ===================== 语音控制区 ===================== */
 .speech-controls {
     padding: 22px 18px;
-    background: var(--bg-subtle);
+    background: rgba(255, 255, 255, 0.9);
     border-radius: var(--radius-lg);
     border: 1px solid var(--border-color);
-    transition: border-color 0.3s ease, background 0.3s ease;
+    box-shadow: var(--shadow-sm);
+    backdrop-filter: blur(4px);
+    transition: border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
 }
 
 /* 四态视觉（待命/聆听/思考/异常） */
@@ -137,6 +143,10 @@ body {
 .speech-controls.state-thinking {
     border-color: #C7D2FE;
     background: var(--color-info-soft);
+}
+.speech-controls.state-drawing {
+    border-color: #C4B5FD;
+    background: linear-gradient(135deg, #F5F3FF, #EEF2FF);
 }
 .speech-controls.state-error {
     border-color: #FECACA;
@@ -246,6 +256,10 @@ button#mic-btn:disabled {
     background: var(--color-info);
     animation: dot-pulse 1.2s ease-out infinite;
 }
+.speech-controls.state-drawing .status-dot {
+    background: #8B5CF6;
+    animation: dot-pulse 0.8s ease-out infinite;
+}
 .speech-controls.state-error .status-dot {
     background: var(--color-danger);
 }
@@ -277,12 +291,13 @@ button#mic-btn:disabled {
     min-height: 76px;
     padding: 14px 16px;
     border: 1px solid var(--border-color);
-    background: var(--bg-subtle);
+    background: rgba(255, 255, 255, 0.85);
     border-radius: var(--radius-md);
     font-size: 14.5px;
     line-height: 1.6;
     word-break: break-word;
     color: var(--color-text);
+    box-shadow: var(--shadow-xs);
 }
 
 /* ===================== 可折叠帮助面板 ===================== */
@@ -290,7 +305,8 @@ button#mic-btn:disabled {
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     overflow: hidden;
-    background: var(--bg-sidebar);
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow: var(--shadow-xs);
 }
 
 .help-toggle {
