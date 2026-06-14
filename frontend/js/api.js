@@ -1,10 +1,17 @@
 // frontend/js/api.js
 
+/**
+ * 后端 API 交互服务
+ */
 class ApiService {
+    /**
+     * 将文本发送给后端 LLM 进行兜底解析
+     * @param {string} text 用户的语音文本
+     * @returns {Promise<Object>} 后端返回的 CommandResponse 对象
+     */
     static async fetchLLMParse(text) {
         try {
-            // Using absolute URL as requested by user fallback
-            const response = await fetch('http://127.0.0.1:8000/api/parse', {
+            const response = await fetch('/api/parse', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -17,7 +24,9 @@ class ApiService {
                 try {
                     const errorData = await response.json();
                     errorMsg = errorData.detail || errorMsg;
-                } catch (e) {}
+                } catch (e) {
+                    // ignore JSON parse error for error responses
+                }
                 throw new Error(errorMsg);
             }
 
@@ -25,9 +34,10 @@ class ApiService {
             return data;
         } catch (error) {
             console.error("[ApiService] LLM 解析请求发生异常:", error);
-            throw error;
+            throw error; // 向上抛出以供 UI 层捕获
         }
     }
 }
 
+// 暴露到全局
 window.ApiService = ApiService;

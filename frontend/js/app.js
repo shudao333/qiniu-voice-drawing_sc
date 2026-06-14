@@ -49,9 +49,11 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (localCommand) {
             console.log("[Router] 本地解析命中，极速执行:", localCommand);
+            // 本地 parse 返回的是单个对象，包装为数组
             if (window.executor) {
                 window.executor.executeCommands([localCommand]);
             }
+            // 执行成功后恢复默认收音状态，清除可能存在的 clarify 提示
             if (speechService && speechService.isListening) {
                 statusText.textContent = "收音中...请说话";
                 statusText.style.color = "green";
@@ -62,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 2. 本地未命中，走 LLM 兜底路由
         console.log(`[Router] 本地解析未命中，升级为 LLM 处理: "${text}"`);
         
+        // 触发大模型请求前，更新 UI 状态为“思考中…”
         statusText.textContent = "思考中...";
         statusText.style.color = "blue";
         micBtn.disabled = true;
@@ -73,6 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const llmData = await window.ApiService.fetchLLMParse(text);
             console.log("[Router] LLM 解析成功:", llmData);
             
+            // 检查是否是大模型发出的 clarify 反问
             if (llmData.commands && llmData.commands.some(c => c.action === 'clarify')) {
                 isClarify = true;
                 clarifyMsg = llmData.reply || "能再说具体一点吗？";
@@ -85,8 +89,10 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("[Router] LLM 处理失败:", error);
             statusText.textContent = "解析失败: " + error.message;
             statusText.style.color = "red";
+            // 短暂保留错误提示后再恢复
             await new Promise(resolve => setTimeout(resolve, 2000));
         } finally {
+            // 请求结束后恢复状态
             micBtn.disabled = false;
             if (speechService && speechService.isListening) {
                 if (isClarify) {
